@@ -41,3 +41,8 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.InitializeAsync(services);
+}
