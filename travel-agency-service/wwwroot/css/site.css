@@ -18,5 +18,87 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    padding-bottom: 60px;
+}
+
+
+/* Video background for Home */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+    .video-background video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Content above video */
+.home-content {
+    position: relative;
+    z-index: 1;
+    color: white;
+}
+.home-divider {
+    border: none;
+    height: 3px; /* עובי הקו */
+    background-color: #000; /* שחור חזק */
+    opacity: 1;
+}
+/* Feature cards on Home */
+.feature-card {
+    background: rgba(255, 255, 255, 0.85); /* מלבן בהיר */
+    border-radius: 12px;
+    padding: 30px 20px;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+    /* Hover effect */
+    .feature-card:hover {
+        transform: translateY(-12px); /* זז למעלה */
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Text styling */
+    .feature-card h5 {
+        margin-bottom: 15px;
+    }
+
+    .feature-card p {
+        margin: 0;
+        color: #000; /* שחור חזק */
+    }
+    .feature-card:hover {
+        transform: translateY(-15px) scale(1.02);
+    }
+.footer {
+    position: fixed;
+    bottom: 20px; /* מרחק מהקצה התחתון */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+}
+
+
+.footer-text {
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 14px;
+}
+
+.footer-text {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 14px;
+    color: #000;
 }

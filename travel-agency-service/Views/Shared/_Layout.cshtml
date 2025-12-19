@@ -32,18 +32,23 @@
             </div>
         </nav>
     </header>
-    <div class="container flex-fill">
+    <div class="container flex-grow-1">
         <main role="main" class="pb-3">
+
             @RenderBody()
         </main>
     </div>
 
 
-    <footer class="border-top footer text-muted mt-auto">
-        <div class="container">
-            &copy; 2025 - travel_agency_service - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="footer mt-auto">
+        <div class="container text-center">
+            <span class="footer-text">
+                © 2025 · Travel Agency ·
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </span>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
