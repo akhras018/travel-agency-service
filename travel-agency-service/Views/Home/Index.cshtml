@@ -1,8 +1,78 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <div class="row justify-content-center text-center">
+        <div class="col-lg-8">
+
+            <h1 class="display-4 fw-bold mb-3">
+                ✈️ Welcome to Travel Agency
+            </h1>
+
+            <p class="lead text-muted mb-4">
+                Plan, book, and manage your trips easily.<br />
+                Our system allows customers to browse travel packages,
+                register securely, and manage their bookings online.
+            </p>
+
+            @if (!User.Identity!.IsAuthenticated)
+            {
+                <!-- User not logged in -->
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a asp-area="Identity"
+                       asp-page="/Account/Register"
+                       class="btn btn-primary btn-lg px-4">
+                        Register
+                    </a>
+
+                    <a asp-area="Identity"
+                       asp-page="/Account/Login"
+                       class="btn btn-outline-primary btn-lg px-4">
+                        Login
+                    </a>
+                </div>
+            }
+            else
+            {
+                <!-- User logged in -->
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a class="btn btn-success btn-lg px-4">
+                        Browse Trips
+                    </a>
+
+                    <a class="btn btn-outline-secondary btn-lg px-4">
+                        My Bookings
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <hr class="my-5" />
+
+    <!-- Info section -->
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <h5 class="fw-bold">🌍 Travel Packages</h5>
+            <p class="text-muted">
+                Browse a variety of destinations and travel offers.
+            </p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <h5 class="fw-bold">🔐 Secure System</h5>
+            <p class="text-muted">
+                Registration and login are protected using secure authentication.
+            </p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <h5 class="fw-bold">📅 Easy Management</h5>
+            <p class="text-muted">
+                Manage bookings, payments, and notifications easily.
+            </p>
+        </div>
+    </div>
 </div>
