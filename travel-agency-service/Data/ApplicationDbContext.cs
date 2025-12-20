@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace travel_agency_service.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    using travel_agency_service.Models;
+
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
