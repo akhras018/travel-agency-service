@@ -1,0 +1,17 @@
+﻿@model travel_agency_service.Models.TravelPackage
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Delete Package";
+}
+
+<h3 class="text-danger">Are you sure?</h3>
+
+<p>
+    <strong>@Model.Destination</strong> – @Model.Country
+</p>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

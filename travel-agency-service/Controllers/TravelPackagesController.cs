@@ -1,0 +1,338 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using travel_agency_service.Data;
+using travel_agency_service.Models;
+
+namespace travel_agency_service.Controllers
+{
+    [Authorize(Roles = "Admin")]
+    public class TravelPackagesController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly IEmailSender _emailSender;
+
+        public TravelPackagesController(
+            ApplicationDbContext context,
+            IEmailSender emailSender)
+        {
+            _context = context;
+            _emailSender = emailSender;
+        }
+
+        // GET: TravelPackages
+        public async Task<IActionResult> Index(
+        string sortBy,
+        string search,
+        PackageType? category,
+        bool? visibleOnly)
+        {
+            IQueryable<TravelPackage> query = _context.TravelPackages;
+
+            // 🔍 Search (Destination / Country)
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p =>
+                    p.Destination.Contains(search) ||
+                    p.Country.Contains(search));
+            }
+
+            // 🏷 Filter by category
+            if (category.HasValue)
+            {
+                query = query.Where(p => p.PackageType == category.Value);
+            }
+
+            // 👁 Filter visibility
+            if (visibleOnly.HasValue)
+            {
+                query = query.Where(p => p.IsVisible == visibleOnly.Value);
+            }
+
+            // 🔃 Sorting
+            query = sortBy switch
+            {
+                "price_asc" => query.OrderBy(p => p.BasePrice),
+                "price_desc" => query.OrderByDescending(p => p.BasePrice),
+                "date" => query.OrderBy(p => p.StartDate),
+                "category" => query.OrderBy(p => p.PackageType),
+                "visible" => query.OrderByDescending(p => p.IsVisible),
+                _ => query.OrderBy(p => p.Id)
+            };
+
+            var packages = await query.ToListAsync();
+
+            // 📊 Stats
+            var waitingCounts = await _context.WaitingListEntries
+                .GroupBy(w => w.TravelPackageId)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count);
+
+            var bookingCounts = await _context.Bookings
+                .GroupBy(b => b.TravelPackageId)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count);
+
+            ViewBag.SortBy = sortBy;
+            ViewBag.Search = search;
+            ViewBag.Category = category;
+            ViewBag.VisibleOnly = visibleOnly;
+            ViewBag.WaitingCounts = waitingCounts;
+            ViewBag.BookingCounts = bookingCounts;
+
+            return View(packages);
+        }
+
+
+
+        // GET: TravelPackages/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: TravelPackages/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(TravelPackage package)
+        {
+            ValidateDiscountRules(package);
+
+            if (ModelState.IsValid)
+            {
+                NormalizeDiscountFields(package);
+                _context.Add(package);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(package);
+        }
+
+        // GET: TravelPackages/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var package = await _context.TravelPackages.FindAsync(id);
+            if (package == null) return NotFound();
+            return View(package);
+        }
+
+        // POST: TravelPackages/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, TravelPackage package)
+        {
+            if (id != package.Id) return NotFound();
+
+            ValidateDiscountRules(package);
+
+            if (ModelState.IsValid)
+            {
+                NormalizeDiscountFields(package);
+                _context.Update(package);
+                await _context.SaveChangesAsync();
+
+                // 📧 בדיקת Waiting List אחרי שמספר חדרים השתנה
+                await NotifyNextUserIfRoomAvailable(package.Id);
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(package);
+        }
+
+        // GET: TravelPackages/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var package = await _context.TravelPackages.FindAsync(id);
+            if (package == null) return NotFound();
+            return View(package);
+        }
+
+        // POST: TravelPackages/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var package = await _context.TravelPackages.FindAsync(id);
+            if (package != null)
+            {
+                _context.TravelPackages.Remove(package);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        // -------------------------
+        // Helpers – Discounts
+        // -------------------------
+
+        private void ValidateDiscountRules(TravelPackage package)
+        {
+            var anyDiscountFieldFilled =
+                package.DiscountPrice.HasValue ||
+                package.DiscountStart.HasValue ||
+                package.DiscountEnd.HasValue;
+
+            if (!anyDiscountFieldFilled)
+                return;
+
+            if (!package.DiscountPrice.HasValue ||
+                !package.DiscountStart.HasValue ||
+                !package.DiscountEnd.HasValue)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "To set a discount you must provide Discount Price, Start Date, and End Date.");
+                return;
+            }
+
+            if (package.DiscountPrice.Value >= package.BasePrice)
+            {
+                ModelState.AddModelError(nameof(package.DiscountPrice),
+                    "Discount price must be lower than base price.");
+            }
+
+            if (package.DiscountEnd.Value < package.DiscountStart.Value)
+            {
+                ModelState.AddModelError(nameof(package.DiscountEnd),
+                    "Discount end date must be after discount start date.");
+            }
+
+            var duration =
+                (package.DiscountEnd.Value.Date - package.DiscountStart.Value.Date).TotalDays;
+
+            if (duration > 7)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "Discount cannot be longer than 7 days.");
+            }
+        }
+
+        private void NormalizeDiscountFields(TravelPackage package)
+        {
+            if (!package.DiscountPrice.HasValue)
+            {
+                package.DiscountStart = null;
+                package.DiscountEnd = null;
+                return;
+            }
+
+            if (!package.DiscountStart.HasValue || !package.DiscountEnd.HasValue)
+            {
+                package.DiscountPrice = null;
+                package.DiscountStart = null;
+                package.DiscountEnd = null;
+            }
+        }
+
+        // -------------------------
+        // Helpers – Waiting List Email + Expiration
+        // -------------------------
+
+        private async Task NotifyNextUserIfRoomAvailable(int packageId)
+        {
+            var package = await _context.TravelPackages.FindAsync(packageId);
+            if (package == null || package.AvailableRooms <= 0)
+                return;
+
+            var now = DateTime.UtcNow;
+            var expiration = TimeSpan.FromHours(24); // 🔁 בדיקה (להחזיר ל-24 שעות)
+
+            var waitingList = await _context.WaitingListEntries
+                .Include(w => w.User)
+                .Where(w => w.TravelPackageId == packageId)
+                .OrderBy(w => w.CreatedAt)
+                .ToListAsync();
+
+            if (!waitingList.Any())
+                return;
+
+            // 🔴 מחיקת משתמשים שפג להם הזמן
+            var expiredUsers = waitingList
+                .Where(w =>
+                    w.NotificationSentAt != null &&
+                    now - w.NotificationSentAt.Value > expiration)
+                .ToList();
+
+            if (expiredUsers.Any())
+            {
+                _context.WaitingListEntries.RemoveRange(expiredUsers);
+                await _context.SaveChangesAsync();
+
+                waitingList = waitingList.Except(expiredUsers).ToList();
+            }
+
+            if (!waitingList.Any())
+                return;
+
+            var nextUser = waitingList.First();
+
+            if (nextUser.NotificationSentAt != null &&
+                now - nextUser.NotificationSentAt.Value <= expiration)
+                return;
+
+            var subject = "A room is now available!";
+            var body = $@"
+Hello {nextUser.User.FirstName},
+
+Good news! 🎉  
+A room is now available for the trip to {package.Destination}, {package.Country}.
+
+Please book the package within the given time window.
+
+Best regards,
+Travel Agency Team
+";
+
+            await _emailSender.SendEmailAsync(
+                nextUser.User.Email,
+                subject,
+                body
+            );
+
+            nextUser.NotificationSentAt = now;
+            _context.WaitingListEntries.Update(nextUser);
+            await _context.SaveChangesAsync();
+        }
+
+        // GET: TravelPackages/WaitingList/5
+        public async Task<IActionResult> WaitingList(int id)
+        {
+            // 🔔 זה הטריגר שחסר – בדיקת פקיעת זמן + מעבר תור
+            await NotifyNextUserIfRoomAvailable(id);
+
+            var package = await _context.TravelPackages
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (package == null)
+                return NotFound();
+
+            var waitingUsers = await _context.WaitingListEntries
+                .Include(w => w.User)
+                .Where(w => w.TravelPackageId == id)
+                .OrderBy(w => w.CreatedAt)
+                .ToListAsync();
+
+            ViewBag.Package = package;
+            return View(waitingUsers);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleVisibility(int id)
+        {
+            var package = await _context.TravelPackages.FindAsync(id);
+            if (package == null)
+                return NotFound();
+
+            package.IsVisible = !package.IsVisible;
+            _context.Update(package);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+    }
+}

@@ -1,0 +1,213 @@
+﻿@model IEnumerable<travel_agency_service.Models.TravelPackage>
+@{
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+    ViewData["Title"] = "Travel Packages";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Travel Packages</h2>
+        <form method="get" class="mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Sort packages</label>
+                    <select name="sortBy"
+                            class="form-control w-100"
+                            style="min-width: 250px;"
+                            onchange="this.form.submit()">
+                        <option value="">Select sorting</option>
+                        <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">
+                            Price (Low → High)
+                        </option>
+                        <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">
+                            Price (High → Low)
+                        </option>
+                        <option value="date" selected="@(ViewBag.SortBy == "date")">
+                            Travel Date
+                        </option>
+                        <option value="category" selected="@(ViewBag.SortBy == "category")">
+                            Category
+                        </option>
+                        <option value="visible" selected="@(ViewBag.SortBy == "visible")">
+                            Visible First
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        <a asp-action="Create" class="btn btn-primary">➕ Add Package</a>
+    </div>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input type="text"
+                   name="search"
+                   value="@ViewBag.Search"
+                   class="form-control"
+                   placeholder="Search destination or country" />
+        </div>
+
+        <div class="col-md-2">
+            <select name="category" class="form-control">
+                <option value="">All categories</option>
+                @foreach (var type in Enum.GetValues(typeof(PackageType)))
+                {
+                    <option value="@type"
+                            selected="@(ViewBag.Category != null && ViewBag.Category.ToString() == type.ToString())">
+                        @type
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="visibleOnly" class="form-control">
+                <option value="">All</option>
+                <option value="true" selected="@(ViewBag.VisibleOnly?.ToString() == "True")">
+                    Visible only
+                </option>
+                <option value="false" selected="@(ViewBag.VisibleOnly?.ToString() == "False")">
+                    Hidden only
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <select name="sortBy" class="form-control">
+                <option value="">Sort</option>
+                <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">
+                    Price ↑
+                </option>
+                <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">
+                    Price ↓
+                </option>
+                <option value="date" selected="@(ViewBag.SortBy == "date")">
+                    Date
+                </option>
+                <option value="category" selected="@(ViewBag.SortBy == "category")">
+                    Category
+                </option>
+                <option value="visible" selected="@(ViewBag.SortBy == "visible")">
+                    Visible first
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">
+                Apply
+            </button>
+        </div>
+
+        <div class="col-md-1">
+            <a asp-action="Index" class="btn btn-secondary w-100">
+                Clear
+            </a>
+        </div>
+    </form>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Destination</th>
+                <th>Country</th>
+                <th>Dates</th>
+                <th>Price</th>
+                <th>Rooms</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+                <th>Bookings</th>
+                <th>Waiting</th>    
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr class="@(p.IsVisible ? "" : "table-secondary")">
+                    <td>@p.Destination</td>
+                    <td>@p.Country</td>
+                    <td>
+                        @p.StartDate.ToShortDateString() -
+                        @p.EndDate.ToShortDateString()
+                    </td>
+
+                    <td>
+                        @(ViewBag.BookingCounts.ContainsKey(p.Id)
+                                            ? ViewBag.BookingCounts[p.Id]
+                                            : 0)
+                                            </td>
+
+                    <td>
+                        @(ViewBag.WaitingCounts.ContainsKey(p.Id)
+                                            ? ViewBag.WaitingCounts[p.Id]
+                                            : 0)
+                </td>
+
+                    <td>
+                        @if (p.HasActiveDiscount())
+                        {
+                            <span style="text-decoration: line-through; color: gray;">
+                                ₪@p.BasePrice
+                            </span>
+                            <strong style="color:red;">
+                                ₪@p.DiscountPrice
+                            </strong>
+                        }
+                        else
+                        {
+                            <span>₪@p.BasePrice</span>
+                        }
+                    </td>
+                    <td>@p.AvailableRooms</td>
+                    <td>@p.PackageType</td>
+
+                    <!-- Visibility status -->
+                    <td>
+                        @if (p.IsVisible)
+                        {
+                            <span class="badge bg-success">Visible</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Hidden</span>
+                        }
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <a asp-action="Edit"
+                           asp-route-id="@p.Id"
+                           class="btn btn-sm btn-warning mb-1">
+                            Edit
+                        </a>
+
+                        <a asp-action="Delete"
+                           asp-route-id="@p.Id"
+                           class="btn btn-sm btn-danger mb-1">
+                            Delete
+                        </a>
+
+                        <a asp-action="WaitingList"
+                           asp-route-id="@p.Id"
+                           class="btn btn-sm btn-info mb-1">
+                            Waiting List
+                        </a>
+
+                        <form asp-action="ToggleVisibility"
+                              asp-route-id="@p.Id"
+                              method="post"
+                              class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="btn btn-sm @(p.IsVisible ? "btn-secondary" : "btn-success")">
+                                @(p.IsVisible ? "Hide" : "Show")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

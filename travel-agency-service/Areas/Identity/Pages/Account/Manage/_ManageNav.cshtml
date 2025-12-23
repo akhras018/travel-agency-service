@@ -1,0 +1,33 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@{
+    var hasExternalLogins =
+        (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+
+<a class="list-group-item list-group-item-action
+          @(ManageNavPages.IndexNavClass(ViewContext))"
+   asp-page="./Index">
+    👤 Profile
+</a>
+
+<a class="list-group-item list-group-item-action
+          @(ManageNavPages.EmailNavClass(ViewContext))"
+   asp-page="./Email">
+    📧 Email
+</a>
+
+<a class="list-group-item list-group-item-action
+          @(ManageNavPages.ChangePasswordNavClass(ViewContext))"
+   asp-page="./ChangePassword">
+    🔒 Password
+</a>
+
+@if (hasExternalLogins)
+{
+    <a class="list-group-item list-group-item-action
+                  @(ManageNavPages.ExternalLoginsNavClass(ViewContext))"
+       asp-page="./ExternalLogins">
+        🌐 External logins
+    </a>
+}
+

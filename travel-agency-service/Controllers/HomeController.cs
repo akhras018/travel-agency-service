@@ -15,9 +15,16 @@ namespace travel_agency_service.Controllers
 
         public IActionResult Index()
         {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Admin");
+                }
+            }
+
             return View();
         }
-
         public IActionResult Privacy()
         {
             return View();
