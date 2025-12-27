@@ -15,5 +15,8 @@ namespace travel_agency_service.Models
         public ApplicationUser User { get; set; }
 
         public DateTime BookedAt { get; set; } = DateTime.UtcNow;
+        public bool IsPaid { get; set; } = false;
+        public DateTime? PaidAt { get; set; }
+
     }
 }

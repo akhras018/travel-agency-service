@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Payment";
+}
+
+<div class="container mt-5" dir="rtl" style="max-width:480px">
+    <h3 class="fw-bold text-center mb-4">ביצוע תשלום</h3>
+    <form method="post" asp-action="ConfirmPayment" autocomplete="off">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="bookingId" value="@ViewBag.BookingId" />
+
+        <!-- Card Holder -->
+        <div class="mb-3">
+            <label class="form-label">ת.ז / שם בעל הכרטיס</label>
+            <input type="text"
+                   name="cardHolderName"
+                   class="form-control"
+                   autocomplete="off"
+                   required />
+        </div>
+
+        <!-- Card Number -->
+        <div class="mb-3">
+            <label class="form-label">מספר כרטיס אשראי</label>
+            <input type="text"
+                   name="cardNumber"
+                   class="form-control"
+                   inputmode="numeric"
+                   maxlength="16"
+                   placeholder="XXXX XXXX XXXX XXXX"
+                   autocomplete="off"
+                   required />
+        </div>
+
+        <!-- Expiration -->
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="form-label">חודש</label>
+                <select name="expMonth" class="form-select" autocomplete="off" required>
+                    <option value="" selected disabled>בחר</option>
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i">@i.ToString("D2")</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-6">
+                <label class="form-label">שנה</label>
+                <select name="expYear" class="form-select" autocomplete="off" required>
+                    <option value="" selected disabled>בחר</option>
+                    @for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 10; y++)
+                    {
+                        <option value="@y">@y</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <!-- CVV -->
+        <div class="mb-4">
+            <label class="form-label">קוד אבטחה (CVV)</label>
+            <input type="password"
+                   name="cvv"
+                   class="form-control"
+                   maxlength="3"
+                   placeholder="3 ספרות בגב הכרטיס"
+                   autocomplete="off"
+                   required />
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success btn-lg">
+                בצע תשלום
+            </button>
+
+            <a asp-action="MyBookings" class="btn btn-outline-secondary">
+                ביטול
+            </a>
+        </div>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger text-center">
+                @TempData["Error"]
+            </div>
+        }
+
+    </form>
+</div>

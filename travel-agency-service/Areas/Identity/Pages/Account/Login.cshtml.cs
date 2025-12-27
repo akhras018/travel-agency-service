@@ -96,9 +96,9 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
                 ModelState.AddModelError(string.Empty, ErrorMessage);
             }
 
-            returnUrl ??= Url.Content("~/Trips/Gallery");
+            // 🔹 כאן השינוי
+            returnUrl ??= Url.Content("~/Home/Index");
 
-            // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -108,7 +108,8 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
+            // 🔹 כאן השינוי
+            returnUrl ??= Url.Content("~/Home/Index");
 
             if (!ModelState.IsValid)
             {
@@ -129,17 +130,17 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
 
                 if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
                 {
-                    // אדמין → דף אדמין
                     return RedirectToAction("Index", "Admin");
                 }
 
-                // משתמש רגיל → גלריית טיולים
-                return RedirectToAction("Gallery", "Trips");
+                // 🔹 משתמש רגיל → Home
+                return LocalRedirect(returnUrl);
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return Page();
         }
+
 
     }
 }

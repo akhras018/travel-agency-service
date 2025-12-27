@@ -1,0 +1,33 @@
+﻿@model IEnumerable<travel_agency_service.Models.Booking>
+
+@{
+    ViewData["Title"] = "User Bookings";
+}
+
+<h2>User Booking History</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Destination</th>
+            <th>Travel Dates</th>
+            <th>Booked At</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>@booking.TravelPackage.Destination</td>
+                <td>
+                    @booking.TravelPackage.StartDate.ToShortDateString()
+                    -
+                    @booking.TravelPackage.EndDate.ToShortDateString()
+                </td>
+                <td>@booking.BookedAt.ToString("g")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Users" class="btn btn-secondary">Back to Users</a>

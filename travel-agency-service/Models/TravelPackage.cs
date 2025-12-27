@@ -62,6 +62,14 @@ namespace travel_agency_service.Models
         }
         // 👁 Visibility in catalog (Admin controlled)
         public bool IsVisible { get; set; } = true;
+        // ⏳ Admin rules – booking & cancellation
+        [DataType(DataType.Date)]
+        public DateTime? LastBookingDate { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? CancellationDeadline { get; set; }
+
 
     }
+
 }

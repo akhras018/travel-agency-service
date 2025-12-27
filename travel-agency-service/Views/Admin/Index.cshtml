@@ -1,106 +1,54 @@
-﻿@{
-    Layout = "~/Views/Admin/_AdminLayout.cshtml";
-    ViewData["Title"] = "Dashboard";
-}
-    
-<div class="container py-5">
-    <h1 class="fw-bold mb-2">Admin Dashboard</h1>
-    <p class="text-muted mb-4">Manage trips, users and system settings</p>
+﻿<div class="row g-4 justify-content-center">
 
-    <div class="row g-4">
-
-        <!-- Manage Packages -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">🌍 Travel Packages</h5>
-                    <p class="card-text">
-                        Add, edit or remove travel packages.
-                    </p>
-                    <a asp-controller="TravelPackages"
-                       asp-action="Index"
-                       class="btn btn-primary w-100">
-                        Manage Travel Packages
-                    </a>
-
-                </div>
+    <!-- Travel Packages -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">🌍 Travel Packages</h5>
+                <p class="card-text">
+                    Add, edit or remove travel packages.
+                </p>
+                <a asp-controller="TravelPackages"
+                   asp-action="Index"
+                   class="btn btn-primary w-100">
+                    Manage Travel Packages
+                </a>
             </div>
         </div>
-
-        <!-- Price & Discounts -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">💰 Prices & Discounts</h5>
-                    <p class="card-text">
-                        Update prices and apply temporary discounts.
-                    </p>
-                    <a href="#" class="btn btn-primary w-100">
-                        Manage Prices
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Waiting Lists -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">📩 Waiting Lists</h5>
-                    <p class="card-text">
-                        Manage waiting lists and email notifications.
-                    </p>
-                    <a href="#" class="btn btn-primary w-100">
-                        Waiting Lists
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Catalog Management -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">📚 Trips Catalog</h5>
-                    <p class="card-text">
-                        Categories, sorting and visibility control.
-                    </p>
-                    <a href="#" class="btn btn-primary w-100">
-                        Manage Catalog
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Booking Rules -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">⏰ Booking Rules</h5>
-                    <p class="card-text">
-                        Booking deadlines, cancellations & reminders.
-                    </p>
-                    <a href="#" class="btn btn-primary w-100">
-                        Booking Settings
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Users Management -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">👤 Users Management</h5>
-                    <p class="card-text">
-                        View users, bookings history and account status.
-                    </p>
-                    <a href="#" class="btn btn-primary w-100">
-                        Manage Users
-                    </a>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- Waiting Lists -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">📩 Waiting Lists</h5>
+                <p class="card-text">
+                    Manage waiting lists and email notifications.
+                </p>
+                <a asp-controller="Admin"
+                   asp-action="WaitingLists"
+                   class="btn btn-primary w-100">
+                    Waiting Lists
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Management -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">👤 Users Management</h5>
+                <p class="card-text">
+                    View users, bookings history and account status.
+                </p>
+                <a asp-controller="Admin"
+                   asp-action="Users"
+                   class="btn btn-primary w-100">
+                    Manage Users
+                </a>
+            </div>
+        </div>
+    </div>
+
 </div>

@@ -44,13 +44,20 @@
             {
                 <!-- User logged in -->
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <a class="btn btn-success btn-lg px-4">
+                    <a asp-controller="Trips"
+                       asp-action="Gallery"
+                       class="btn btn-success btn-lg px-4">
                         Browse Trips
                     </a>
 
-                    <a class="btn btn-outline-secondary btn-lg px-4">
+
+                    <a asp-controller="Trips"
+                       asp-action="MyBookings"
+                       class="btn btn-outline-secondary btn-lg px-4">
                         My Bookings
                     </a>
+
+
                 </div>
             }
 

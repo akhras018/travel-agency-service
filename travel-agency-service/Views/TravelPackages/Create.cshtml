@@ -31,6 +31,18 @@
             <input asp-for="EndDate" type="date" class="form-control" />
         </div>
     </div>
+    <div class="form-group">
+        <label asp-for="LastBookingDate"></label>
+        <input asp-for="LastBookingDate" class="form-control" />
+        <span asp-validation-for="LastBookingDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CancellationDeadline"></label>
+        <input asp-for="CancellationDeadline" class="form-control" />
+        <span asp-validation-for="CancellationDeadline" class="text-danger"></span>
+    </div>
+
 
     <!-- Base Price -->
     <div class="mb-2">

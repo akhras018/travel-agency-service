@@ -38,42 +38,26 @@ namespace travel_agency_service.Controllers
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var now = DateTime.UtcNow;
 
-            // 🔹 בסיס הקטלוג – רק חבילות גלויות
             IQueryable<TravelPackage> packagesQuery =
                 _context.TravelPackages.Where(p => p.IsVisible);
 
-            // 🔍 סינון לפי קטגוריה
             if (category.HasValue)
-            {
-                packagesQuery = packagesQuery
-                    .Where(p => p.PackageType == category.Value);
-            }
+                packagesQuery = packagesQuery.Where(p => p.PackageType == category.Value);
 
-            // 🔍 סינון לפי יעד
             if (!string.IsNullOrWhiteSpace(destination))
-            {
-                packagesQuery = packagesQuery
-                    .Where(p => p.Destination.Contains(destination));
-            }
+                packagesQuery = packagesQuery.Where(p => p.Destination.Contains(destination));
 
-            // 🔍 סינון לפי מדינה
             if (!string.IsNullOrWhiteSpace(country))
-            {
-                packagesQuery = packagesQuery
-                    .Where(p => p.Country.Contains(country));
-            }
+                packagesQuery = packagesQuery.Where(p => p.Country.Contains(country));
 
-            // 🔻 סינון מבצעים בלבד
             if (onlyDiscounted)
             {
-                packagesQuery = packagesQuery
-                    .Where(p =>
-                        p.DiscountPrice.HasValue &&
-                        p.DiscountStart <= now &&
-                        p.DiscountEnd >= now);
+                packagesQuery = packagesQuery.Where(p =>
+                    p.DiscountPrice.HasValue &&
+                    p.DiscountStart <= now &&
+                    p.DiscountEnd >= now);
             }
 
-            // 💰 סינון לפי טווח מחירים
             if (minPrice.HasValue)
             {
                 packagesQuery = packagesQuery.Where(p =>
@@ -94,7 +78,6 @@ namespace travel_agency_service.Controllers
                         : p.BasePrice) <= maxPrice.Value);
             }
 
-            // 🔃 מיון
             if (sortBy == "popular")
             {
                 packagesQuery =
@@ -123,29 +106,21 @@ namespace travel_agency_service.Controllers
                             : p.BasePrice),
 
                     "date" => packagesQuery.OrderBy(p => p.StartDate),
-
                     _ => packagesQuery
                 };
             }
 
             var packages = await packagesQuery.ToListAsync();
 
-            // ⏳ Waiting lists
             var waitingLists = await _context.WaitingListEntries
                 .OrderBy(w => w.CreatedAt)
                 .ToListAsync();
 
-            // ⭐ חישוב פופולריות
             var bookingCounts = await _context.Bookings
                 .GroupBy(b => b.TravelPackageId)
-                .Select(g => new
-                {
-                    PackageId = g.Key,
-                    Count = g.Count()
-                })
+                .Select(g => new { PackageId = g.Key, Count = g.Count() })
                 .ToListAsync();
 
-            // 🧠 בניית ViewModel
             var model = packages.Select(p =>
             {
                 var waitingForPackage = waitingLists
@@ -170,7 +145,6 @@ namespace travel_agency_service.Controllers
                 };
             }).ToList();
 
-            // 📌 שמירת מצב UI
             ViewBag.SortBy = sortBy;
             ViewBag.Category = category;
             ViewBag.OnlyDiscounted = onlyDiscounted;
@@ -198,9 +172,7 @@ namespace travel_agency_service.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var alreadyWaiting = await _context.WaitingListEntries
-                .AnyAsync(w =>
-                    w.TravelPackageId == packageId &&
-                    w.UserId == userId);
+                .AnyAsync(w => w.TravelPackageId == packageId && w.UserId == userId);
 
             if (alreadyWaiting)
             {
@@ -239,37 +211,206 @@ namespace travel_agency_service.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // 🔴 הסרת המשתמש מרשימת המתנה אם קיים
+            // ❌ בדיקה: הזמנה כפולה לאותו Trip
+            var alreadyBooked = await _context.Bookings
+                .AnyAsync(b =>
+                    b.UserId == userId &&
+                    b.TravelPackageId == packageId);
+
+            if (alreadyBooked)
+            {
+                TempData["Message"] = "You already booked this trip.";
+                return RedirectToAction(nameof(Gallery));
+            }
+
+            // ✅ בדיקה: עד 3 הזמנות עתידיות בלבד
+            var activeBookingsCount = await _context.Bookings
+                .Include(b => b.TravelPackage)
+                .CountAsync(b =>
+                    b.UserId == userId &&
+                    b.TravelPackage.StartDate > DateTime.UtcNow);
+
+            if (activeBookingsCount >= 3)
+            {
+                TempData["Message"] = "You can have up to 3 upcoming bookings only.";
+                return RedirectToAction(nameof(Gallery));
+            }
+
+            // הסרה מרשימת המתנה אם קיים
             var waitingEntries = await _context.WaitingListEntries
-                .Where(w =>
-                    w.TravelPackageId == packageId &&
-                    w.UserId == userId)
+                .Where(w => w.TravelPackageId == packageId && w.UserId == userId)
                 .ToListAsync();
 
             if (waitingEntries.Any())
-            {
                 _context.WaitingListEntries.RemoveRange(waitingEntries);
-            }
 
-            // 🏨 הקטנת מספר החדרים
             package.AvailableRooms -= 1;
             _context.TravelPackages.Update(package);
 
-            // ⭐ יצירת Booking (זה מה שסופר פופולריות)
             _context.Bookings.Add(new Booking
             {
                 TravelPackageId = packageId,
-                UserId = userId,
+                UserId = userId
             });
 
             await _context.SaveChangesAsync();
 
-
-            // 🔔 שליחת מייל למשתמש הבא אם נשאר חדר
             await _waitingListService.NotifyNextUserIfRoomAvailable(packageId);
 
             TempData["Message"] = "Booking successful!";
             return RedirectToAction(nameof(Gallery));
         }
+
+        // =========================
+        // GET: Trips/MyBookings
+        // =========================
+        public async Task<IActionResult> MyBookings()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var bookings = await _context.Bookings
+                .Include(b => b.TravelPackage)
+                .Where(b => b.UserId == userId)
+                .OrderBy(b => b.TravelPackage.StartDate)
+                .ToListAsync();
+
+            return View(bookings);
+        }
+
+        // =========================
+        // POST: Cancel Booking
+        // =========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelBooking(int bookingId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var booking = await _context.Bookings
+                .Include(b => b.TravelPackage)
+                .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
+
+            if (booking == null)
+                return NotFound();
+
+            booking.TravelPackage.AvailableRooms += 1;
+            _context.TravelPackages.Update(booking.TravelPackage);
+
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync();
+
+            await _waitingListService.NotifyNextUserIfRoomAvailable(booking.TravelPackageId);
+
+            TempData["Message"] = "Booking canceled successfully.";
+            return RedirectToAction("MyBookings");
+        }
+
+        // =========================
+        // GET: Trips/Pay
+        // =========================
+        [HttpGet]
+        public async Task<IActionResult> Pay(int bookingId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var booking = await _context.Bookings
+                .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
+
+            if (booking == null)
+                return NotFound();
+
+            if (booking.IsPaid)
+            {
+                TempData["Message"] = "This booking is already paid.";
+                return RedirectToAction(nameof(MyBookings));
+            }
+
+            ViewBag.BookingId = bookingId;
+            return View();
+        }
+
+        [HttpGet]
+
+
+        // =========================
+        // POST: Trips/ConfirmPayment
+        // =========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmPayment(
+    int bookingId,
+    string cardHolderName,
+    string cardNumber,
+    int expMonth,
+    int expYear,
+    string cvv)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var booking = await _context.Bookings
+                .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
+
+            if (booking == null)
+                return NotFound();
+
+            // ❌ בדיקה: שדות ריקים
+            if (string.IsNullOrWhiteSpace(cardHolderName) ||
+                string.IsNullOrWhiteSpace(cardNumber) ||
+                string.IsNullOrWhiteSpace(cvv))
+            {
+                TempData["Error"] = "Please fill all payment fields.";
+                return RedirectToAction(nameof(Pay), new { bookingId });
+            }
+
+            // ❌ מספר כרטיס לא תקין
+            if (cardNumber.Length != 16 || !cardNumber.All(char.IsDigit))
+            {
+                TempData["Error"] = "Invalid card number.";
+                return RedirectToAction(nameof(Pay), new { bookingId });
+            }
+
+            // ❌ CVV לא תקין
+            if (cvv.Length != 3 || !cvv.All(char.IsDigit))
+            {
+                TempData["Error"] = "Invalid CVV code.";
+                return RedirectToAction(nameof(Pay), new { bookingId });
+            }
+
+            // ❌ כרטיס שפג תוקף
+            var expirationDate = new DateTime(expYear, expMonth, 1).AddMonths(1).AddDays(-1);
+            if (expirationDate < DateTime.Today)
+            {
+                TempData["Error"] = "Card has expired.";
+                return RedirectToAction(nameof(Pay), new { bookingId });
+            }
+
+            // ❌ כישלון אקראי (סימולציית בנק)
+            var random = new Random();
+            if (random.Next(1, 5) == 1) // ~25% כישלון
+            {
+                TempData["Error"] = "Payment was declined by the bank.";
+                return RedirectToAction(nameof(Pay), new { bookingId });
+            }
+
+            // ✅ הצלחה
+            booking.IsPaid = true;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Payment completed successfully.";
+            return RedirectToAction(nameof(PaymentSuccess));
+
+        }
+
+
+        public IActionResult PaymentSuccess()
+        {
+            return View();
+        }
+
+
+
+
+
     }
 }
