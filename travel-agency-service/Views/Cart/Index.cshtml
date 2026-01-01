@@ -1,0 +1,102 @@
+﻿@model List<travel_agency_service.Models.ViewModels.CartItemViewModel>
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold mb-4">🛒 Shopping Cart</h1>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            Your cart is empty.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                @foreach (var item in Model)
+                {
+                    <div class="row align-items-center border-bottom py-3">
+
+                        <!-- Image -->
+                        <div class="col-md-2">
+                            <img src="@item.ImageUrl"
+                                 class="img-fluid rounded"
+                                 style="height:80px;object-fit:cover;" />
+                        </div>
+
+                        <!-- Info -->
+                        <div class="col-md-4">
+                            <h6 class="mb-1 fw-bold">
+                                @item.Destination, @item.Country
+                            </h6>
+                            <small class="text-muted">
+                                @item.StartDate.ToShortDateString()
+                                –
+                                @item.EndDate.ToShortDateString()
+                            </small>
+                        </div>
+
+                        <!-- Rooms -->
+                        <div class="col-md-2 text-center">
+                            <strong>@item.Rooms</strong> rooms
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-md-2 text-center">
+                            <div>@item.UnitPrice₪</div>
+                            <strong>@item.TotalPrice₪</strong>
+                        </div>
+
+                        <!-- Remove -->
+                        <div class="col-md-2 text-end">
+                            <form asp-action="Remove" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="cartItemId" value="@item.Id" />
+                                <button class="btn btn-sm btn-outline-danger">
+                                    Remove
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+                }
+
+                <!-- Total -->
+                <div class="text-end mt-4">
+                    <h4>
+                        Total:
+                        <strong class="text-primary">
+                            @Model.Sum(i => i.TotalPrice)₪
+                        </strong>
+                    </h4>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <a asp-controller="Trips"
+                       asp-action="Gallery"
+                       class="btn btn-success w-100 mt-3">
+                        Continue Shopping
+                    </a>
+
+                    <form asp-action="Checkout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-success w-100 mt-3">
+                            Checkout
+                        </button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>

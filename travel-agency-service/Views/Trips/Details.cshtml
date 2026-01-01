@@ -1,0 +1,388 @@
+﻿@model travel_agency_service.Models.ViewModels.TripDetailsViewModel
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-warning text-center mt-3">
+        @TempData["Error"]
+    </div>
+}
+
+@{
+    ViewData["Title"] = "Trip Details";
+    var package = Model.Package;
+
+    var LastBookingDate = package.LastBookingDate;
+    var cancellationDeadline = package.CancellationDeadline;
+    var canCancel = !cancellationDeadline.HasValue || DateTime.UtcNow <= cancellationDeadline.Value;
+}
+
+<!-- HERO -->
+<section class="trips-hero trips-hero--small"
+         style="background-image:url('/images/pexels-pixabay-237272.jpg')">
+    <div class="hero-overlay"></div>
+    <div class="hero-inner">
+        <h2 class="hero-title">@package.Destination, @package.Country</h2>
+        <p class="hero-subtitle">
+            @package.StartDate.ToShortDateString()
+            -
+            @package.EndDate.ToShortDateString()
+        </p>
+    </div>
+</section>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning text-center">
+        @TempData["Message"]
+    </div>
+}
+
+<!-- CONTENT -->
+<section class="container my-5">
+    <div class="row g-5">
+
+        <!-- Right side -->
+        <div class="col-lg-8">
+
+            <!-- Gallery -->
+            @if (Model.GalleryImages.Any())
+            {
+                <div class="row g-3 mb-4">
+                    @foreach (var img in Model.GalleryImages)
+                    {
+                        <div class="col-md-4">
+                            <img src="@img"
+                                 class="img-fluid rounded shadow-sm clickable-image"
+                                 style="height:180px;object-fit:cover"
+                                 onclick="openImageModal(this.src)" />
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Description -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-3">Package Description</h5>
+                    <p>@package.Description</p>
+
+                    <hr />
+                    <p><strong>Start Date::</strong>@package.StartDate.ToShortDateString()</p>
+                    <p><strong>End Date:</strong> @package.EndDate.ToShortDateString()</p>
+
+                    <p><strong>Package Type:</strong> @package.PackageType</p>
+                    <p><strong>Age Restriction:</strong> From age @package.AgeLimitation and up</p>
+                    <p><strong>Available Rooms:</strong> @package.AvailableRooms</p>
+
+                    <hr />
+
+                    <!-- Important Dates -->
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <strong>:Latest booking date</strong><br />
+
+                            @if (LastBookingDate.HasValue)
+                            {
+                                var canBook = DateTime.UtcNow <= LastBookingDate.Value;
+
+                                <span class="fw-bold @(canBook ? "text-success" : "text-danger")">
+                                    @LastBookingDate.Value.ToShortDateString()
+                                </span>
+
+                                @if (!canBook)
+                                {
+                                    <div class="text-danger small">
+                                        Booking period has ended
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Booking available until sold out
+                                </span>
+                            }
+                        </div>
+
+
+                        <div class="col-md-6 mb-2">
+                            <strong>:Cancellation allowed until</strong><br />
+                            @if (cancellationDeadline.HasValue)
+                            {
+                                <span class="fw-bold @(canCancel ? "text-success" : "text-danger")">
+                                    @cancellationDeadline.Value.ToShortDateString()
+                                </span>
+
+                                @if (!canCancel)
+                                {
+                                    <div class="text-danger small">
+                                        Cancellation period has ended
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Cancellation not available</span>
+                            }
+                        </div>
+
+                        @{
+                            var daysLeft = (Model.Package.StartDate.Date - DateTime.Today).Days;
+                        }
+
+                        @if (daysLeft > 0)
+                        {
+                            <p>
+                                <strong>Departure:</strong>
+                                In @daysLeft days
+                            </p>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Left side – Booking -->
+        <div class="col-lg-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+
+                    <h5 class="mb-3">Package Booking</h5>
+
+                    <!-- Price -->
+                    <div class="mb-3">
+                        @if (package.HasActiveDiscount())
+                        {
+                            <div class="text-muted text-decoration-line-through">
+                                @package.BasePrice₪
+                            </div>
+                            <div class="fs-4 fw-bold text-danger">
+                                @package.GetCurrentPrice()₪
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="fs-4 fw-bold">
+                                @package.BasePrice₪
+                            </div>
+                        }
+                    </div>
+
+                    <hr />
+
+                    @if (Model.IsFull)
+                    {
+                        <div class="alert alert-warning text-center">
+                             No rooms available
+                        </div>
+                    }
+                    else if (DateTime.UtcNow > LastBookingDate)
+                    {
+                        <div class="alert alert-danger text-center">
+                            Booking period has ended
+                        </div>
+                    }
+                    else if (Model.AlreadyBooked)
+                    {
+                        <div class="alert alert-warning text-center">
+                            You have already booked this trip
+                        </div>
+                    }
+                    else if (package.LastBookingDate.HasValue &&
+                    DateTime.UtcNow > package.LastBookingDate.Value)
+                    {
+                        <div class="alert alert-danger text-center">
+                            Booking is no longer available
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-action="Book"
+                              asp-controller="Trips"
+                              method="post"
+                              class="mb-2">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="packageId" value="@package.Id" />
+
+                            <div class="mb-2">
+                                <label class="form-label">Number of Rooms</label>
+                                <select class="form-select" name="rooms" id="roomsSelect">
+                                    @for (int i = 1; i <= package.AvailableRooms; i++)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-outline-primary w-100">
+                                Book
+                            </button>
+                        </form>
+
+
+                        <form asp-action="Book"
+                              asp-controller="Trips"
+                              method="post"
+                              class="mb-2"
+                              onsubmit="syncRooms(this)">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="packageId" value="@package.Id" />
+
+                            <input type="hidden" name="rooms" class="rooms-hidden" />
+
+                            <input type="hidden" name="payNow" value="true" />
+
+                            <button type="submit"
+                                    class="btn btn-primary w-100">
+                                Buy Now
+                            </button>
+                        </form>
+
+
+                        <form asp-action="AddToCart"
+                              asp-controller="Cart"
+                              method="post"
+                            onsubmit="syncRooms(this)">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="packageId" value="@package.Id" />
+<input type="hidden" name="rooms" class="rooms-hidden" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-secondary w-100 btn-add-cart-rect">
+                                🛒 Add to Cart
+                            </button>
+                        </form>
+
+
+
+                    }
+
+                </div>
+            </div>
+            <!-- Reviews Card -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">⭐ Trip Reviews</h5>
+                    <div class="site-reviews-scroll">
+
+                    @if (!Model.Reviews.Any())
+                    {
+                        <div class="text-muted small">
+                            No reviews yet. Be the first to review this trip.
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="mb-3 pb-3 border-bottom">
+
+                                <!-- Stars -->
+                                <div class="mb-1">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= review.Rating)
+                                        {
+                                            <span class="text-warning">★</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-secondary">☆</span>
+                                        }
+                                    }
+                                </div>
+
+                                <!-- Comment -->
+                                <div class="small">
+                                    @review.Comment
+                                </div>
+
+                                <!-- User + Date -->
+                                <div class="text-muted small mt-1">
+                                    @review.User.Email ·
+                                    @review.CreatedAt.ToShortDateString()
+                                </div>
+                            </div>
+                        }
+                    }
+                    </div>
+
+                </div>
+            </div>
+            @if (Model.CanReview)
+            {
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5>Rate this trip</h5>
+
+                        <form asp-action="AddReview" asp-controller="Trips" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="TravelPackageId" value="@Model.Package.Id" />
+
+                            <label>Rating</label>
+                            <select name="Rating" class="form-select" required>
+                                <option value="5">★★★★★</option>
+                                <option value="4">★★★★</option>
+                                <option value="3">★★★</option>
+                                <option value="2">★★</option>
+                                <option value="1">★</option>
+                            </select>
+
+                            <label class="mt-2">Comment</label>
+                            <textarea name="Comment" class="form-control" required></textarea>
+
+                            <button type="submit" class="btn btn-primary mt-3">
+                                Submit Review
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            }
+
+
+        </div>
+
+    </div>
+</section>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+    <span class="close-btn">&times;</span>
+    <img id="modalImage" />
+</div>
+<script>
+    function syncRooms(form) {
+        const rooms = document.getElementById("roomsSelect").value;
+        form.querySelector('input[name="rooms"]').value = rooms;
+    }
+</script>
+<script>
+    function syncRooms(form) {
+        const rooms = document.getElementById("roomsSelect").value;
+        form.querySelector('input[name="rooms"]').value = rooms;
+    }
+
+    function openImageModal(src) {
+        const modal = document.getElementById("imageModal");
+        const modalImage = document.getElementById("modalImage");
+
+        modalImage.src = src;
+        modal.style.display = "flex";
+    }
+
+    function closeImageModal() {
+        const modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+    }
+</script>

@@ -106,7 +106,8 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
+            // OnGetAsync
+            returnUrl ??= Url.Content("~/Trips/Gallery");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {

@@ -18,5 +18,10 @@ namespace travel_agency_service.Data
 
         public DbSet<Booking> Bookings { get; set; }
 
+        public DbSet<SiteReview> SiteReviews { get; set; }
+
+        public DbSet<TripReview> TripReviews { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+
     }
 }

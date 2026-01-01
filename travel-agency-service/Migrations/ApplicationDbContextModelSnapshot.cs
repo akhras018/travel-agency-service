@@ -155,6 +155,40 @@ namespace travel_agency_service.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TripReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TravelPackageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelPackageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TripReviews");
+                });
+
             modelBuilder.Entity("travel_agency_service.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -239,11 +273,20 @@ namespace travel_agency_service.Migrations
                     b.Property<DateTime>("BookedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsPaid")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("ReminderSent")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rooms")
+                        .HasColumnType("int");
 
                     b.Property<int>("TravelPackageId")
                         .HasColumnType("int");
@@ -259,6 +302,70 @@ namespace travel_agency_service.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("travel_agency_service.Models.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rooms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TravelPackageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelPackageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CartItems");
+                });
+
+            modelBuilder.Entity("travel_agency_service.Models.SiteReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SiteReviews");
                 });
 
             modelBuilder.Entity("travel_agency_service.Models.TravelPackage", b =>
@@ -305,7 +412,7 @@ namespace travel_agency_service.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ImageUrls")
+                    b.Property<string>("GalleryImagesJson")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -314,6 +421,10 @@ namespace travel_agency_service.Migrations
 
                     b.Property<DateTime?>("LastBookingDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("MainImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PackageType")
                         .HasColumnType("int");
@@ -410,6 +521,25 @@ namespace travel_agency_service.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TripReview", b =>
+                {
+                    b.HasOne("travel_agency_service.Models.TravelPackage", "TravelPackage")
+                        .WithMany()
+                        .HasForeignKey("TravelPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("travel_agency_service.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPackage");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("travel_agency_service.Models.Booking", b =>
                 {
                     b.HasOne("travel_agency_service.Models.TravelPackage", "TravelPackage")
@@ -425,6 +555,36 @@ namespace travel_agency_service.Migrations
                         .IsRequired();
 
                     b.Navigation("TravelPackage");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("travel_agency_service.Models.CartItem", b =>
+                {
+                    b.HasOne("travel_agency_service.Models.TravelPackage", "TravelPackage")
+                        .WithMany()
+                        .HasForeignKey("TravelPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("travel_agency_service.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPackage");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("travel_agency_service.Models.SiteReview", b =>
+                {
+                    b.HasOne("travel_agency_service.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

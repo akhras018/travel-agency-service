@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using travel_agency_service.Data;
 using travel_agency_service.Models;
+using System.IO;
 
 namespace travel_agency_service.Controllers
 {
@@ -96,20 +97,49 @@ namespace travel_agency_service.Controllers
         // POST: TravelPackages/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TravelPackage package)
-        {
-            ValidateDiscountRules(package);
 
-            if (ModelState.IsValid)
+        public async Task<IActionResult> Create(
+    TravelPackage package,
+    IFormFile mainImage,
+    List<IFormFile> galleryImages)
+        {
+            if (!ModelState.IsValid)
+                return View(package);
+
+            // תמונה ראשית
+            if (mainImage != null)
+                package.MainImageUrl = await SaveImage(mainImage);
+
+            // גלריה
+            if (galleryImages != null && galleryImages.Any())
             {
-                NormalizeDiscountFields(package);
-                _context.Add(package);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var paths = new List<string>();
+                foreach (var img in galleryImages)
+                    paths.Add(await SaveImage(img));
+
+                package.GalleryImagesJson = string.Join('\n', paths);
             }
 
-            return View(package);
+            _context.Add(package);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
+
+        private async Task<string> SaveImage(IFormFile file)
+        {
+            var uploads = Path.Combine("wwwroot", "uploads");
+            Directory.CreateDirectory(uploads);
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            var path = Path.Combine(uploads, fileName);
+
+            using var stream = new FileStream(path, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return "/uploads/" + fileName;
+        }
+
+
 
         // GET: TravelPackages/Edit/5
         public async Task<IActionResult> Edit(int id)
@@ -122,26 +152,100 @@ namespace travel_agency_service.Controllers
         // POST: TravelPackages/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, TravelPackage package)
+     
+        public async Task<IActionResult> Edit(
+    int id,
+    TravelPackage package,
+    IFormFile? mainImage,
+    List<IFormFile>? galleryImages,
+    List<string>? ImagesToDelete,
+          string? GalleryOrder)
         {
-            if (id != package.Id) return NotFound();
+            if (!ModelState.IsValid)
+                return View(package);
 
-            ValidateDiscountRules(package);
+            NormalizeDiscountFields(package);
 
-            if (ModelState.IsValid)
+            var existingPackage = await _context.TravelPackages
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (existingPackage == null)
+                return NotFound();
+
+            var uploadsFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads");
+
+            Directory.CreateDirectory(uploadsFolder);
+
+            // ======================
+            // 🖼 תמונה ראשית
+            // ======================
+            if (mainImage != null && mainImage.Length > 0)
             {
-                NormalizeDiscountFields(package);
-                _context.Update(package);
-                await _context.SaveChangesAsync();
+                var fileName = Guid.NewGuid() + Path.GetExtension(mainImage.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
 
-                // 📧 בדיקת Waiting List אחרי שמספר חדרים השתנה
-                await NotifyNextUserIfRoomAvailable(package.Id);
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await mainImage.CopyToAsync(stream);
 
-                return RedirectToAction(nameof(Index));
+                package.MainImageUrl = "/uploads/" + fileName;
+            }
+            else
+            {
+                package.MainImageUrl = existingPackage.MainImageUrl;
             }
 
-            return View(package);
+            // ======================
+            // 🖼 גלריה
+            // ======================
+            var gallery = (existingPackage.GalleryImagesJson ?? "")
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
+
+            // מחיקת תמונות שסומנו
+            if (ImagesToDelete != null && ImagesToDelete.Any())
+            {
+                gallery = gallery
+                    .Where(img => !ImagesToDelete.Contains(img))
+                    .ToList();
+            }
+
+            // הוספת תמונות חדשות
+            if (galleryImages != null && galleryImages.Any())
+            {
+                foreach (var img in galleryImages)
+                {
+                    if (img.Length == 0) continue;
+
+                    var fileName = Guid.NewGuid() + Path.GetExtension(img.FileName);
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await img.CopyToAsync(stream);
+
+                    gallery.Add("/uploads/" + fileName);
+                }
+            }
+            if (!string.IsNullOrEmpty(GalleryOrder))
+            {
+                package.GalleryImagesJson = GalleryOrder;
+            }
+
+
+            package.GalleryImagesJson = string.Join('\n', gallery);
+
+            _context.Update(package);
+            await _context.SaveChangesAsync();
+
+            await NotifyNextUserIfRoomAvailable(package.Id);
+
+            return RedirectToAction(nameof(Index));
         }
+
+
 
         // GET: TravelPackages/Delete/5
         public async Task<IActionResult> Delete(int id)
@@ -332,6 +436,11 @@ Travel Agency Team
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+        [Authorize(Roles = "Admin")]
+        public IActionResult Dashboard()
+        {
+            return View();
         }
 
     }

@@ -42,7 +42,11 @@ namespace travel_agency_service.Models
         public string Description { get; set; } = "";
 
         // שמירת כל התמונות כמחרוזת (URL בכל שורה)
-        public string ImageUrls { get; set; } = "";
+        // 🖼 תמונה ראשית (Hero / Thumbnail)
+        // 📸 תמונה ראשית
+        public string MainImageUrl { get; set; } = "";   // תמונה ראשית
+        public string GalleryImagesJson { get; set; } = "[]";
+
 
         // 🧠 Business logic – active discount check
         public bool HasActiveDiscount()

@@ -1,0 +1,25 @@
+﻿@model List<travel_agency_service.Models.TravelPackage>
+
+@if (!Model.Any())
+{
+    <p class="text-center">לא נמצאו תוצאות</p>
+}
+else
+{
+    foreach (var p in Model)
+    {
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <img src="@p.MainImageUrl?.Split('\n').FirstOrDefault()"
+                     class="card-img-top"
+                     style="height:200px;object-fit:cover;" />
+
+                <div class="card-body text-end">
+                    <h5>@p.Destination</h5>
+                    <p>@p.Country</p>
+                    <strong>@p.GetCurrentPrice()₪</strong>
+                </div>
+            </div>
+        </div>
+    }
+}

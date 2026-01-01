@@ -7,7 +7,7 @@
 
 <h2>Create Travel Package</h2>
 
-<form asp-action="Create" method="post" class="mt-3">
+<form asp-action="Create" method="post" enctype="multipart/form-data" class="mt-3">
     @Html.AntiForgeryToken()
 
 
@@ -92,9 +92,16 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="ImageUrls">Image URLs (one per line)</label>
-        <textarea asp-for="ImageUrls" class="form-control"></textarea>
+        <label>תמונה ראשית</label>
+        <input type="file" name="mainImage" class="form-control" />
     </div>
+
+    <div class="mb-3">
+
+        <label class="mt-2">תמונות גלריה</label>
+        <input type="file" name="galleryImages" multiple class="form-control" />
+    </div>
+
 
     <button class="btn btn-success">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>

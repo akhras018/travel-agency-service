@@ -97,7 +97,9 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
             }
 
             // 🔹 כאן השינוי
-            returnUrl ??= Url.Content("~/Home/Index");
+            // כאן השינוי
+            // OnGetAsync
+            returnUrl ??= Url.Content("~/Trips/Gallery");
 
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
@@ -109,7 +111,8 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             // 🔹 כאן השינוי
-            returnUrl ??= Url.Content("~/Home/Index");
+            // OnGetAsync
+            returnUrl ??= Url.Content("~/Trips/Gallery");
 
             if (!ModelState.IsValid)
             {

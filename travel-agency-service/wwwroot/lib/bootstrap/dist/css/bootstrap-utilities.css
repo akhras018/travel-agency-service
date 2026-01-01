@@ -2193,7 +2193,7 @@
   }
 
   .text-sm-end {
-    text-align: right !important;
+    text-align: left !important;
   }
 
   .text-sm-center {
@@ -2844,7 +2844,7 @@
   }
 
   .text-md-end {
-    text-align: right !important;
+    text-align: left !important;
   }
 
   .text-md-center {

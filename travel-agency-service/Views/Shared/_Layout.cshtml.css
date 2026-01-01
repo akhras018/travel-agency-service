@@ -40,9 +40,40 @@ button.accept-policy {
 }
 
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    .cart-link
+
+{
+    position: relative;
+    display: inline-block;
+}
+.cart-link {
+    position: relative;
+    display: inline-block;
+}
+
+.cart-icon {
+    font-size: 1.8rem; /* גודל העגלה */
+    color: #444;
+}
+
+.cart-badge {
+    position: absolute;
+    bottom: -6px;
+    right: -10px;
+    width: 18px;
+    height: 18px;
+    background-color: #dc3545; /* אדום */
+    color: white;
+    border-radius: 50%; /* עיגול */
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
 }

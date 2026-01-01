@@ -1,8 +1,11 @@
-﻿@{
-    ViewData["Title"] = "Payment Successful";
+﻿@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success text-center">
+        @ViewBag.Message
+    </div>
 }
 
-<div class="container mt-5 text-center" dir="rtl" style="max-width:500px">
+<div class="container mt-5 text-center" style="max-width:500px">
     <h2 class="text-success fw-bold mb-3">✅ התשלום בוצע בהצלחה</h2>
 
     <p class="mb-4">

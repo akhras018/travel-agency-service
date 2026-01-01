@@ -1,215 +1,257 @@
 ﻿@model IEnumerable<travel_agency_service.Models.ViewModels.TripGalleryItemViewModel>
 
 @{
-    ViewData["Title"] = "Trip Gallery";
+    ViewData["Title"] = "Trips";
+}
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success text-center">
+        @TempData["Message"]
+    </div>
 }
 
-<div class="container mt-5">
-    <h1 class="mb-4 text-center">Trip Gallery</h1>
+<section class="trips-hero">
+    <div class="hero-overlay"></div>
 
-    @if (TempData["Message"] != null)
-    {
-        <div class="alert alert-info text-center">
-            @TempData["Message"]
-        </div>
-    }
-
-    <!-- 🔍 Filter Button -->
-    <div class="text-center mb-4">
-        <button class="btn btn-outline-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#filterModal">
-            🔍 Filter Trips
-        </button>
+    <div class="hero-inner">
+        <h1 class="hero-title">
+            Ready for Your Next Trip?
+        </h1>
+        <p class="hero-subtitle">Find Personalized Vacation Packages</p>
     </div>
 
-    <!-- 🧳 Trips -->
-    <div class="row">
-        @foreach (var item in Model)
-        {
-            var p = item.Package;
-            var waitingCount = item.WaitingCount;
-            var isUserWaiting = item.IsUserWaiting;
-            int? userPosition = item.UserPosition;
+    <!-- 🔍 Search box בתחתית התמונה -->
+    <form method="get" asp-action="Search" class="trip-search-box text-end">
 
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body d-flex flex-column">
-                        @if (item.BookingCount >= 3)
-                        {
-                            <span class="badge bg-warning text-dark mb-2">
-                                ⭐ Popular
-                            </span>
-                        }
+        <!-- יעד -->
+        <input type="text"
+               name="destination"
+               class="form-control text-end"
+               placeholder="Destination" />
 
-                        <h5 class="card-title">
-                            @p.Destination, @p.Country
-                        </h5>
+        <!-- תאריכים -->
+        <input type="date"
+               name="startDate"
+               class="form-control text-end" />
 
-                        <p class="card-text">
-                            <strong>Dates:</strong><br />
-                            @p.StartDate.ToShortDateString() -
-                            @p.EndDate.ToShortDateString()
-                        </p>
+        <input type="date"
+               name="endDate"
+               class="form-control text-end" />
 
-                        <p class="card-text">
-                            <strong>Price:</strong><br />
-                            @if (p.HasActiveDiscount())
-                            {
-                                <span style="text-decoration: line-through; color: gray;">
-                                    ₪@p.BasePrice
-                                </span>
-                                <strong style="color:red;">
-                                    ₪@p.DiscountPrice
-                                </strong>
-                            }
-                            else
-                            {
-                                <span>₪@p.BasePrice</span>
-                            }
-                        </p>
+        <!-- מחיר -->
+        <input type="number"
+               name="minPrice"
+               class="form-control text-end"
+               placeholder="Min Price" />
 
-                        <p class="card-text">
-                            <strong>Available rooms:</strong>
-                            @p.AvailableRooms
-                        </p>
+        <input type="number"
+               name="maxPrice"
+               class="form-control text-end"
+               placeholder="Max Price" />
 
-                        @if (p.AvailableRooms == 0 && waitingCount > 0)
-                        {
-                            <p class="card-text text-warning">
-                                <strong>@waitingCount</strong> other people are waiting for this trip
+        <!-- קטגוריה -->
+        <select name="category" class="form-select ">
+            <option value="">All Categories</option>
+            @foreach (var type in Enum.GetValues(typeof(PackageType)))
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+
+        <button type="submit" class="btn btn-primary search-btn">
+            Search
+        </button>
+    </form>
+
+
+</section>
+
+<section class="deals-section">
+    <h2 class="deals-title">Hot Deals</h2>
+
+    <div class="deals-container">
+        <!-- חץ ימינה -->
+        <button class="deals-arrow right" data-direction="right">
+            ❯
+        </button>
+
+        <div class="deals-wrapper" id="dealsWrapper">
+            @foreach (var item in Model.Where(m => m.Package.HasActiveDiscount()))
+            {
+                var p = item.Package;
+                <a asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none">
+                    <div class="deal-card">
+                        <div class="deal-image">
+                            <img src="@p.MainImageUrl" alt="@p.Destination" />
+                        </div>
+                        <div class="deal-info">
+                            <h5>@p.Destination</h5>
+                            <span>@p.GetCurrentPrice()₪</span>
+                        </div>
+                    </div>
+                </a>
+
+
+
+            }
+        </div>
+
+        <!-- חץ שמאלה -->
+        <!-- חץ שמאלה -->
+        <button class="deals-arrow left" data-direction="left">
+            ❮
+        </button>
+    </div>
+</section>
+<section class="popular-section">
+    <h2 class="popular-title">Popular Right Now</h2>
+
+    <div class="popular-container">
+        <!-- חץ ימין -->
+        <button class="popular-arrow right">
+            ❯
+        </button>
+        <!-- קרוסלה -->
+        <div class="popular-wrapper" id="popularWrapper">
+            @foreach (var item in Model.Where(m => m.BookingCount >= 3))
+            {
+                var p = item.Package;
+                <a asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none">
+                    <div class="deal-card">
+                        <div class="deal-image">
+                            <img src="@p.MainImageUrl" alt="@p.Destination" />
+                        </div>
+                        <div class="deal-info">
+                            <h5>@p.Destination</h5>
+                            <span>@p.GetCurrentPrice()₪</span>
+                        </div>
+                    </div>
+                </a>
+
+
+
+            }
+        </div>
+
+        <!-- חץ שמאל -->
+        <button class="popular-arrow left">
+            ❮
+        </button>
+    </div>
+</section>
+    <section class="container-fluid my-5 px-5">
+
+        <h2 class="fw-bold mb-4 text-center">
+            Browse Trips
+        </h2>
+
+        <!-- Filters -->
+        <form method="get" asp-action="Gallery" class="row g-3 mb-4">
+
+            <!-- Category -->
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    @foreach (var type in Enum.GetValues(typeof(PackageType)))
+                    {
+                        <option value="@type"
+                                selected="@(ViewBag.Category?.ToString() == type.ToString())">
+                            @type
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <!-- Sort -->
+            <div class="col-md-3">
+                <select name="sortBy" class="form-select">
+                    <option value="">Sort By</option>
+                    <option value="price_asc"
+                            selected="@(ViewBag.SortBy?.ToString() == "price_asc")">
+                        Price ↑
+                    </option>
+                    <option value="price_desc">Price ↓</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="date">Travel Date</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">
+                    Apply
+                </button>
+            </div>
+
+        </form>
+
+        <!-- Trips Cards -->
+        <div class="row g-4">
+
+            @foreach (var item in Model)
+            {
+                var p = item.Package;
+
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+
+                        <img src="@p.MainImageUrl"
+                             class="card-img-top"
+                             alt="@p.Destination" />
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">
+                                @p.Destination, @p.Country
+                            </h5>
+
+                            <p class="text-muted mb-2">
+                                @p.StartDate.ToShortDateString() –
+                                @p.EndDate.ToShortDateString()
                             </p>
-                        }
 
-                        @if (isUserWaiting)
+                            <p class="fw-bold">
+                                @p.GetCurrentPrice() ₪
+                            </p>
+
+                            <a asp-action="Details"
+                               asp-route-id="@p.Id"
+                               class="btn btn-outline-primary mt-auto">
+                                View Trip
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    </section>
+
+        
+
+
+@if (ViewBag.SiteReviews != null && ViewBag.SiteReviews.Count > 0)
+{
+        <section class="container-fluid my-5 px-4">
+            <h2 class="fw-bold mb-4 text-center">
+                What users think about our service
+            </h2>
+
+            <div class="d-flex justify-content-center">
+                <div class="col-xl-4 col-lg-5 col-md-7 col-sm-10">
+                    <div class="site-reviews-scroll">
+                        @foreach (var review in ViewBag.SiteReviews)
                         {
-                            <div class="alert alert-info p-2">
-                                <strong>You are already on the waiting list</strong>
+                            <div class="border rounded p-3 mb-3">
+                                <strong>@review.Rating ★</strong>
+                                <p class="mb-1">@review.Comment</p>
+                                <small class="text-muted">
+                                    @review.CreatedAt.ToShortDateString()
+                                </small>
                             </div>
                         }
-
-                        @if (isUserWaiting && userPosition != null)
-                        {
-                            <p class="card-text text-info">
-                                You are <strong>#@userPosition</strong> in line
-                            </p>
-                        }
-
-                        <div class="mt-auto">
-                            @if (p.AvailableRooms > 0 && (!isUserWaiting || userPosition == 1))
-                            {
-                                <form asp-action="Book" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="packageId" value="@p.Id" />
-                                    <button type="submit" class="btn btn-success w-100">
-                                        Book
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <button class="btn btn-secondary w-100 mb-2" disabled>
-                                    No rooms available
-                                </button>
-
-                                @if (!isUserWaiting)
-                                {
-                                    <form asp-action="JoinWaitingList" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="packageId" value="@p.Id" />
-                                        <button type="submit" class="btn btn-outline-primary w-100">
-                                            Join waiting list
-                                        </button>
-                                    </form>
-                                }
-                            }
-                        </div>
                     </div>
                 </div>
             </div>
-        }
-    </div>
-</div>
+        </section>
 
-<!-- 🪟 Filter Modal -->
-<div class="modal fade" id="filterModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <form method="get">
-                <div class="modal-header">
-                    <h5 class="modal-title">Filter Trips</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="row g-3">
-
-                        <div class="col-md-6">
-                            <label class="form-label">Sort By</label>
-                            <select name="sortBy" class="form-control">
-                                <option value="">None</option>
-                                <option value="price_asc">Price (Low → High)</option>
-                                <option value="price_desc">Price (High → Low)</option>
-                                <option value="date">Travel Date</option>
-                                <option value="popular">Most Popular</option>
-
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Category</label>
-                            <select name="category" class="form-control">
-                                <option value="">All</option>
-                                @foreach (var type in Enum.GetValues(typeof(PackageType)))
-                                {
-                                    <option value="@type">@type</option>
-                                }
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Destination</label>
-                            <input type="text" name="destination" class="form-control" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Country</label>
-                            <input type="text" name="country" class="form-control" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Min Price</label>
-                            <input type="number" name="minPrice" class="form-control" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Max Price</label>
-                            <input type="number" name="maxPrice" class="form-control" />
-                        </div>
-
-                        <div class="col-md-12 form-check mt-2">
-                            <input type="checkbox"
-                                   name="onlyDiscounted"
-                                   value="true"
-                                   class="form-check-input"
-                                   id="discountCheck" />
-                            <label class="form-check-label" for="discountCheck">
-                                Only discounted trips
-                            </label>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <a asp-action="Gallery" class="btn btn-secondary">
-                        Clear
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        Apply Filters
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+}

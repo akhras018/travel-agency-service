@@ -2,9 +2,11 @@
     ViewData["Title"] = "Payment";
 }
 
-<div class="container mt-5" dir="rtl" style="max-width:480px">
-    <h3 class="fw-bold text-center mb-4">ביצוע תשלום</h3>
-    <form method="post" asp-action="ConfirmPayment" autocomplete="off">
+<div class="container mt-5" style="max-width:480px">
+    <form asp-controller="Trips"
+          asp-action="ConfirmPayment"
+          method="post">
+
 
         @Html.AntiForgeryToken()
         <input type="hidden" name="bookingId" value="@ViewBag.BookingId" />
@@ -72,12 +74,22 @@
         <!-- Buttons -->
         <div class="d-grid gap-2">
             <button type="submit" class="btn btn-success btn-lg">
-                בצע תשלום
+                Proceed to Payment
             </button>
 
-            <a asp-action="MyBookings" class="btn btn-outline-secondary">
-                ביטול
-            </a>
+            <form asp-action="CancelPayment" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="bookingId" value="@ViewBag.BookingId" />
+                <button type="button"
+                        class="btn btn-outline-secondary w-100 mt-2"
+                        onclick="location.href='@Url.Action("CancelPendingBooking", "Trips", new { bookingId = ViewBag.BookingId })'">
+                    Cancel Payment
+                </button>
+
+
+
+            </form>
+
         </div>
         @if (TempData["Error"] != null)
         {

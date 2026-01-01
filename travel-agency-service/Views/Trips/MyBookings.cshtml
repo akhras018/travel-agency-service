@@ -1,88 +1,265 @@
-﻿@model IEnumerable<travel_agency_service.Models.Booking>
+﻿@using System.Security.Claims
+@model IEnumerable<travel_agency_service.Models.Booking>
 
 @{
     ViewData["Title"] = "My Bookings";
+    var upcomingBookings = ViewBag.UpcomingBookings as List<travel_agency_service.Models.Booking> ?? new();
+    var pastBookings = ViewBag.PastBookings as List<travel_agency_service.Models.Booking> ?? new();
 }
 
 <div class="container mt-5">
+
     <h1 class="fw-bold mb-4">My Bookings</h1>
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info">
-            You have no bookings.
-        </div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle text-center">
-                <thead class="table-light">
-                    <tr>
-                        <th>Destination</th>
-                        <th>Country</th>
-                        <th>Dates</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var booking in Model)
+    <div class="row g-5">
+
+        <!-- ================= LEFT SIDE – BOOKINGS ================= -->
+        <div class="col-lg-8">
+
+            <!-- ========= UPCOMING TRIPS ========= -->
+            <h3 class="fw-bold mb-3">📅 Upcoming Trips</h3>
+
+            @if (!upcomingBookings.Any())
+            {
+                <div class="alert alert-info">
+                    You have no upcoming trips.
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-4 mb-5">
+                    @foreach (var booking in upcomingBookings)
                     {
-                        <tr>
-                            <td>@booking.TravelPackage.Destination</td>
-                            <td>@booking.TravelPackage.Country</td>
-                            <td>
-                                @booking.TravelPackage.StartDate.ToShortDateString()
-                                -
-                                @booking.TravelPackage.EndDate.ToShortDateString()
-                            </td>
-                            <td>₪@booking.TravelPackage.BasePrice</td>
+                        var package = booking.TravelPackage;
+                        var totalPrice = package.GetCurrentPrice() * booking.Rooms;
+                        var canCancel = !package.CancellationDeadline.HasValue ||
+                        DateTime.UtcNow <= package.CancellationDeadline.Value;
 
-                            <!-- Status -->
-                            <td>
-                                @if (booking.IsPaid)
-                                {
-                                    <span class="badge bg-success">Paid</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">Unpaid</span>
-                                }
-                            </td>
+                        <a asp-controller="Trips"
+                           asp-action="Details"
+                           asp-route-id="@package.Id"
+                           class="booking-card-link text-decoration-none text-dark">
 
-                            <!-- Actions -->
-                            <td class="d-flex justify-content-center gap-2">
+                            <div class="card booking-card shadow-sm border-0">
+                                <div class="row g-0">
 
-                                @if (!booking.IsPaid)
-                                {
-                                    <a asp-action="Pay"
-                                       asp-route-bookingId="@booking.Id"
-                                       class="btn btn-success btn-sm">
-                                        Pay
-                                    </a>
+                                    <!-- Image -->
+                                    <div class="col-md-4">
+                                        <img src="@package.MainImageUrl"
+                                             class="booking-image"
+                                             alt="@package.Destination" />
+                                    </div>
 
+                                    <!-- Content -->
+                                    <div class="col-md-8">
+                                        <div class="card-body h-100 d-flex flex-column">
 
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <div>
+                                                    <h4 class="fw-bold mb-1">
+                                                        @package.Destination, @package.Country
+                                                    </h4>
+                                                    <div class="text-muted small">
+                                                        @package.StartDate.ToString("dd/MM/yyyy")
+                                                        –
+                                                        @package.EndDate.ToString("dd/MM/yyyy")
+                                                    </div>
+                                                </div>
 
-                                }
+                                                <span class="badge @(booking.IsPaid ? "bg-success" : "bg-warning text-dark")">
+                                                    @(booking.IsPaid ? "Paid" : "Unpaid")
+                                                </span>
+                                            </div>
 
-                                <form asp-action="CancelBooking"
-                                      method="post"
-                                      onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="bookingId" value="@booking.Id" />
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        Cancel
-                                    </button>
-                                </form>
+                                            <div class="row text-muted small mb-2">
+                                                <div class="col-md-4">
+                                                    <strong>Rooms:</strong> @booking.Rooms
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong>Package:</strong> @package.PackageType
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <strong>Booked:</strong>
+                                                    @booking.CreatedAt.ToString("dd/MM/yyyy")
+                                                </div>
+                                            </div>
 
-                            </td>
-                        </tr>
+                                            <div class="mb-3">
+                                                <span class="fs-4 fw-bold text-primary">
+                                                    @totalPrice₪
+                                                </span>
+                                            </div>
+
+                                            <div class="mt-auto d-flex gap-2">
+
+                                                @if (!booking.IsPaid)
+                                                {
+                                                    <a asp-action="Pay"
+                                                       asp-route-bookingId="@booking.Id"
+                                                       class="btn btn-success btn-sm"
+                                                       onclick="event.stopPropagation();">
+                                                        Pay
+                                                    </a>
+                                                }
+
+                                                @if (canCancel)
+                                                {
+                                                    <form asp-action="CancelBooking"
+                                                          method="post"
+                                                          onsubmit="event.stopPropagation(); return confirm('Cancel this booking?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="bookingId" value="@booking.Id" />
+                                                        <button class="btn btn-outline-danger btn-sm">
+                                                            Cancel
+                                                        </button>
+                                                    </form>
+                                                }
+
+                                                <a asp-action="DownloadItinerary"
+                                                   asp-route-bookingId="@booking.Id"
+                                                   class="btn btn-outline-primary btn-sm"
+                                                   onclick="event.stopPropagation();">
+                                                    PDF
+                                                </a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                     }
-                </tbody>
+                </div>
+            }
 
-            </table>
+            <!-- ========= PAST TRIPS ========= -->
+            <h3 class="fw-bold mb-3">🕒 Past Trips</h3>
+
+            @if (!pastBookings.Any())
+            {
+                <div class="alert alert-secondary">
+                    No past trips yet.
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-4">
+                    @foreach (var booking in pastBookings)
+                    {
+                        var package = booking.TravelPackage;
+
+                        <a asp-controller="Trips"
+                           asp-action="Details"
+                           asp-route-id="@package.Id"
+                           class="booking-card-link text-decoration-none text-dark">
+
+                            <div class="card booking-card shadow-sm border-0 opacity-75">
+                                <div class="row g-0">
+
+                                    <div class="col-md-4">
+                                        <img src="@package.MainImageUrl"
+                                             class="booking-image"
+                                             alt="@package.Destination" />
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+
+                                            <h4 class="fw-bold">
+                                                @package.Destination, @package.Country
+                                            </h4>
+
+                                            <div class="text-muted small mb-2">
+                                                @package.StartDate.ToString("dd/MM/yyyy")
+                                                –
+                                                @package.EndDate.ToString("dd/MM/yyyy")
+                                            </div>
+
+                                            <span class="badge bg-secondary">
+                                                Completed
+                                            </span>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+
         </div>
-    }
+
+        <!-- ================= RIGHT SIDE – SITE REVIEWS ================= -->
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">⭐ What users think about our service</h5>
+
+                    <div class="site-reviews-scroll">
+                        @if (ViewBag.SiteReviews == null || ViewBag.SiteReviews.Count == 0)
+                        {
+                            <div class="text-muted small">No reviews yet.</div>
+                        }
+                        else
+                        {
+                            foreach (var review in ViewBag.SiteReviews)
+                            {
+                                <div class="border-bottom pb-3 mb-3">
+                                    <div class="mb-1">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span class="@(i <= review.Rating ? "text-warning" : "text-secondary")">★</span>
+                                        }
+                                    </div>
+                                    <div class="small text-muted">@review.Comment</div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">
+                        ✍️ Rate your experience
+                    </h5>
+
+                    <form asp-action="AddSiteReview"
+                          asp-controller="Trips"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <label class="form-label">Rating</label>
+                        <select name="Rating" class="form-select" required>
+                            <option value="5">★★★★★ Excellent</option>
+                            <option value="4">★★★★ Very Good</option>
+                            <option value="3">★★★ Good</option>
+                            <option value="2">★★ Fair</option>
+                            <option value="1">★ Poor</option>
+                        </select>
+
+                        <label class="form-label mt-3">Comment</label>
+                        <textarea name="Comment"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Tell us about your experience..."
+                                  required></textarea>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100 mt-3">
+                            Submit Review
+                        </button>
+                    </form>
+
+                </div>
+
+        </div>
+        <!-- Add Review -->
+      
+        </div>
+    </div>
 </div>

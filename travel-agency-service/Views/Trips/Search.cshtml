@@ -1,0 +1,203 @@
+﻿@model IEnumerable<travel_agency_service.Models.ViewModels.TripGalleryItemViewModel>
+
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<div class="search-page" dir="rtl">
+
+    <!-- ================= HERO ================= -->
+    <section class="trips-hero">
+        <div class="hero-overlay"></div>
+
+        <div class="search-summary-box">
+            <div class="search-summary-header">
+                @ViewBag.ResultsCount Results found
+            </div>
+
+            <div class="search-summary-item">
+                <i class="bi bi-geo-alt"></i>
+                <span>Destination:</span>
+                <strong>@(ViewBag.Destination ?? "All")</strong>
+            </div>
+
+            <div class="search-summary-item">
+                <i class="bi bi-calendar-event"></i>
+                <span>Dates:</span>
+                <strong>@(ViewBag.StartDate ?? "—") – @(ViewBag.EndDate ?? "—")</strong>
+            </div>
+
+            <div class="search-summary-item">
+                <i class="bi bi-cash-stack"></i>
+                <span>Price:</span>
+                <strong>
+                    @(ViewBag.MinPrice != null ? $"₪{ViewBag.MinPrice}" : "")
+                    @(ViewBag.MaxPrice != null ? $" – ₪{ViewBag.MaxPrice}" : "")
+                </strong>
+            </div>
+
+            <div class="search-summary-item">
+                <i class="bi bi-bag"></i>
+                <span>Category:</span>
+                <strong>@(ViewBag.Category ?? "All")</strong>
+            </div>
+        </div>
+
+        <!-- SEARCH FORM -->
+        <form method="get" asp-action="Search" class="trip-search-box text-end">
+            <input type="text" name="destination" class="form-control" placeholder="Destination"
+                   value="@ViewBag.Destination" />
+
+            <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+            <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+
+            <input type="number" name="minPrice" class="form-control" placeholder="Min Price"
+                   value="@ViewBag.MinPrice" />
+            <input type="number" name="maxPrice" class="form-control" placeholder="Max Price"
+                   value="@ViewBag.MaxPrice" />
+
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                @foreach (var type in Enum.GetValues(typeof(PackageType)))
+                {
+                    <option value="@type" selected="@(ViewBag.Category?.ToString() == type.ToString())">
+                        @type
+                    </option>
+                }
+            </select>
+
+            <button type="submit" class="btn btn-primary search-btn">Search</button>
+        </form>
+    </section>
+
+    <!-- ================= RESULTS ================= -->
+    <section class="container-fluid my-5">
+        <div class="row justify-content-end">
+            <div class="col-lg-10 col-xl-9">
+
+                <h3 class="text-end mb-4">Search Results</h3>
+
+                @if (!Model.Any())
+                {
+                    <p class="text-end">No results found</p>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        var p = item.Package;
+
+                        <div class="card mb-4 shadow-sm">
+                            <div class="row g-0">
+
+                                <!-- IMAGE -->
+                                <div class="col-md-4 order-md-3">
+                                    <img src="@p.MainImageUrl"
+                                         class="img-fluid h-100"
+                                         style="object-fit:cover" />
+                                </div>
+
+                                <!-- DETAILS -->
+                                <div class="col-md-5 order-md-2 p-3 text-end">
+                                    <h5>@p.Destination, @p.Country</h5>
+
+                                    <p class="mb-1">
+                                        Dates:
+                                        @p.StartDate.ToShortDateString() –
+                                        @p.EndDate.ToShortDateString()
+                                    </p>
+
+                                    <p class="mb-1">
+                                        Package type: @p.PackageType
+                                    </p>
+
+                                    @if (item.BookingCount >= 3)
+                                    {
+                                        <span class="badge bg-warning text-dark mb-2">
+                                            ⭐ popular
+                                        </span>
+                                    }
+                                    @if (item.LatestReviews.Any())
+                                      {
+                                            <div class="mt-2 border-top pt-2">
+                                                <div class="small fw-bold text-muted mb-1">
+                                                    Reviews
+                                                </div>
+
+                                                @foreach (var review in item.LatestReviews.Take(3))
+                                                {
+                                                    <div class="mb-2">
+                                                        <div>
+                                                            @for (int i = 1; i <= 3; i++)
+                                                            {
+                                                                <span class="@(i <= review.Rating ? "text-warning" : "text-secondary")">★</span>
+                                                            }
+                                                        </div>
+                                                        <div class="small text-muted">
+                                                            @review.Comment
+                                                        </div>
+                                                    </div>
+                                                }
+                                           </div>
+                                        }
+                                    
+
+
+                                </div>
+
+                                <!-- PRICE + ACTIONS -->
+                                <div class="col-md-3 order-md-1 p-3 text-end d-flex flex-column justify-content-end">
+
+                                    <div class="mb-3">
+                                        @if (p.HasActiveDiscount())
+                                        {
+                                            <div class="text-muted text-decoration-line-through">
+                                                @p.BasePrice₪
+                                            </div>
+                                            <div class="fw-bold text-danger fs-5">
+                                                @p.GetCurrentPrice()₪
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold fs-5">
+                                                @p.BasePrice₪
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- ADD TO CART -->
+                                    <form asp-action="AddToCart"
+                                          asp-controller="Cart"
+                                          method="post"
+                                          class="mb-2"
+                                          onclick="event.stopPropagation();">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden" name="packageId" value="@p.Id" />
+                                        <input type="hidden" name="rooms" value="1" />
+
+                                        <button type="submit"
+                                                class="btn btn-outline-secondary btn-sm w-100 btn-add-cart-rect">
+                                            🛒 Add to Cart
+                                        </button>
+                                    </form>
+
+                                    <!-- DETAILS -->
+                                    <a asp-controller="Trips"
+                                       asp-action="Details"
+                                       asp-route-id="@p.Id"
+                                       class="btn btn-primary btn-sm w-100">
+                                        Package Details
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</div>

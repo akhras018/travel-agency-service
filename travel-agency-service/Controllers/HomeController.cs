@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using travel_agency_service.Models;
 
@@ -21,10 +21,15 @@ namespace travel_agency_service.Controllers
                 {
                     return RedirectToAction("Index", "Admin");
                 }
+
+                // 🔥 משתמש רגיל → Trips
+                return RedirectToAction("Gallery", "Trips");
             }
 
+            // לא מחובר → Home רגיל
             return View();
         }
+
         public IActionResult Privacy()
         {
             return View();

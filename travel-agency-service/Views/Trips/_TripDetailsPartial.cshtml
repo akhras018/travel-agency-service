@@ -1,0 +1,41 @@
+﻿@model travel_agency_service.Models.TravelPackage
+
+<div class="container-fluid text-end">
+
+    <h3 class="mb-3">@Model.Destination, @Model.Country</h3>
+
+    <!-- תמונות -->
+    <div class="row mb-4">
+        @foreach (var img in Model.MainImageUrl.Split('\n'))
+        {
+            <div class="col-md-4 mb-3">
+                <img src="@img"
+                     class="img-fluid rounded"
+                     style="object-fit:cover;height:200px;width:100%" />
+            </div>
+        }
+    </div>
+
+    <p>@Model.Description</p>
+
+    <hr />
+    <!-- מחיר -->
+    <h4>
+        Price per person:
+        <span class="text-danger fw-bold">
+            @Model.GetCurrentPrice()₪
+        </span>
+    </h4>
+
+    <p>Available rooms: @Model.AvailableRooms</p>
+
+    <div class="d-flex gap-2 justify-content-end mt-4">
+        <button class="btn btn-outline-secondary">
+            Book
+        </button>
+
+        <button class="btn btn-primary">
+            Buy Now
+        </button>
+    </div>
+</div>

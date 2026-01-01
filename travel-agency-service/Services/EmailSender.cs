@@ -32,10 +32,13 @@ namespace travel_agency_service.Services
 
             var mailMessage = new MailMessage
             {
-                From = new MailAddress(smtpSettings["Username"]),
+                From = new MailAddress(
+                    smtpSettings["Username"],
+                    "Travel Agency Service"
+                ),
                 Subject = subject,
                 Body = htmlMessage,
-                IsBodyHtml = false
+                IsBodyHtml = true // ⭐ חד-משמעי
             };
 
             mailMessage.To.Add(email);

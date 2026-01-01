@@ -149,10 +149,10 @@
                         @if (p.HasActiveDiscount())
                         {
                             <span style="text-decoration: line-through; color: gray;">
-                                ₪@p.BasePrice
+                                @p.BasePrice₪
                             </span>
                             <strong style="color:red;">
-                                ₪@p.DiscountPrice
+                                @p.DiscountPrice₪
                             </strong>
                         }
                         else
@@ -208,6 +208,13 @@
                     </td>
                 </tr>
             }
+            <a asp-controller="TravelPackages"
+               asp-action="Dashboard"
+               class="btn btn-outline-primary">
+                Admin Dashboard
+            </a>
+
+
         </tbody>
     </table>
 </div>

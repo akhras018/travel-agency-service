@@ -4,6 +4,10 @@ using travel_agency_service.Data;
 using travel_agency_service.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using travel_agency_service.Services;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +29,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<WaitingListService>();
+builder.Services.AddScoped<EmailSender>();
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Cookie
 builder.Services.ConfigureApplicationCookie(options =>
@@ -62,6 +75,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
