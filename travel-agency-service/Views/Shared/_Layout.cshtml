@@ -1,11 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using travel_agency_service.Models
 @inject SignInManager<ApplicationUser> SignInManager
-@using travel_agency_service.Models.ViewModels
-@using travel_agency_service.Helpers
-
-
-
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -13,55 +8,106 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ✈️ Travel Agency</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/travel_agency_service.styles.css" asp-append-version="true" />
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
 </head>
+
 <body class="d-flex flex-column min-vh-100">
 
     <header>
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">✈️ Travel Agency</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav ms-auto">
+
+                <!-- Logo -->
+                <a class="navbar-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+                    ✈️ Travel Agency
+                </a>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+                    <ul class="navbar-nav">
+
+                        <!-- Home (כולם) -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Home
+                            </a>
                         </li>
-                  
 
-                      
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <!-- 👤 USER -->
+                            if (!User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Trips"
+                                       asp-action="MyBookings">
+                                        My Bookings
+                                    </a>
+                                </li>
 
+                                <li class="nav-item me-3">
+                                    @await Component.InvokeAsync("CartSummary")
+                                </li>
+                            }
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Trips" asp-action="MyBookings">My Bookings</a>
-                        </li>
-                        <li class="nav-item me-3">
-                            @await Component.InvokeAsync("CartSummary")
-                        </li>
+                            <!-- 🛠 ADMIN -->
+                            if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Admin"
+                                       asp-action="Index">
+                                        Dashboard
+                                    </a>
+                                </li>
+                            }
+
+                            <!-- Account (כולם מחוברים) -->
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Manage/Index">
+                                    Account
+                                </a>
+                            </li>
+
+                            <!-- Logout -->
+                            <li class="nav-item">
+                                <form asp-area="Identity"
+                                      asp-page="/Account/Logout"
+                                      method="post"
+                                      class="d-inline">
+                                    <button class="btn btn-link nav-link text-danger">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        }
+
                     </ul>
-                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
+
     <main role="main" class="flex-grow-1">
         @RenderBody()
     </main>
-
 
     <footer class="footer mt-auto">
         <div class="container text-center">
             <span class="footer-text">
                 © 2025 · Travel Agency ·
-                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
             </span>
         </div>
     </footer>
@@ -70,5 +116,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

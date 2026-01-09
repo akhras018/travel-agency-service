@@ -23,8 +23,9 @@ public class AdminController : Controller
     // ====== קיים ======
     public IActionResult Index()
     {
-        return View();
+        return RedirectToAction("Index", "TravelPackages");
     }
+
 
     // ====== קיים ======
     public IActionResult Packages()

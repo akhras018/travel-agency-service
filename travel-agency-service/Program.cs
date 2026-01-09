@@ -27,9 +27,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
+
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<WaitingListService>();
 builder.Services.AddScoped<EmailSender>();
+
+// 🔔 ADDED – Automatic reminders
+builder.Services.AddScoped<ReminderService>();
+builder.Services.AddHostedService<ReminderBackgroundService>();
+
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
