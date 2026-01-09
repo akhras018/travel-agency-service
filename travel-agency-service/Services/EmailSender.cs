@@ -17,6 +17,8 @@ namespace travel_agency_service.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            Console.WriteLine("📧 SendEmailAsync CALLED for: " + email);
+
             var smtpSettings = _configuration.GetSection("Smtp");
 
             var client = new SmtpClient

@@ -929,3 +929,153 @@ html, body {
             background: #dc3545;
             color: #ffffff !important;
         }
+.gallery-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+}
+/* הכרטיס עצמו */
+.trip-card {
+    width: 320px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    min-height: 520px; /* 🔑 אורך הכרטיס */
+
+    display: flex; /* 🔑 חובה */
+    flex-direction: column; /* 🔑 חובה */
+}
+
+/* אזור התמונה */
+.trip-image {
+    position: relative;
+    height: 220px; /* 🔑 הגובה הקבוע */
+    overflow: hidden; /* 🔑 חיתוך */
+}
+
+    /* התמונה עצמה */
+    .trip-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 🔑 לא נמתח, נחתך יפה */
+        display: block;
+    }
+.trip-info {
+    display: flex;
+    gap: 16px; /* 🔑 הרווח בין גיל לתאריך */
+    font-size: 14px;
+    color: #444;
+    margin: 8px 0;
+}
+.old-price {
+    font-size: 22px; /* 🔼 היה 14px */
+    color: #9ca3af;
+    text-decoration: line-through; /* ❌ קו חוצה */
+    margin-left: 10px;
+}
+.trip-price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 16px 0;
+}
+.trip-actions {
+    margin-top: auto;         /* 🔑 הקסם */
+    display: flex;
+    gap: 12px;
+}
+
+
+    .trip-actions a {
+        flex: 1;
+        padding: 12px 0;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+        transition: all .25s ease;
+    }
+
+/* כפתור ראשי */
+.btn-primary {
+    background: #0d6efd; /* כחול Bootstrap */
+    color: #fff;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background: #0b5ed7; /* כחול כהה יותר */
+    }
+
+
+/* כפתור משני */
+.btn-outline {
+    border: 1.5px solid #0d6efd;
+    color: #0d6efd;
+    background: transparent;
+}
+
+    .btn-outline:hover {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+.trip-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.new-price {
+    font-size: 26px; /* 🔥 גדול יותר */
+    font-weight: 900;
+    color: #2563eb;
+    line-height: 1;
+}
+.trip-actions a {
+    transition: all 0.25s ease;
+
+}
+/* תג קטגוריה */
+.badge.category {
+    position: absolute;
+    top: 12px;
+    left: 12px; /* 🔑 שמאל עליון */
+    background: #0d6efd; /* 🔵 כחול */
+    color: #fff;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+/* דירוג על התמונה */
+.rating-badge {
+    position: absolute;
+    bottom: 12px; /* 🔑 תחתית */
+    right: 12px; /* 🔑 צד ימין */
+    background: #ffffff;
+    padding: 6px 10px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+    /* כוכב */
+    .rating-badge .star {
+        color: #facc15; /* ⭐ צהוב */
+        font-size: 14px;
+    }
+
+    /* מספר */
+    .rating-badge .rating-value {
+        color: #111827;
+    }

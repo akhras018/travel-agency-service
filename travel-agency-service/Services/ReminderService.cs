@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
 using travel_agency_service.Data;
 
 namespace travel_agency_service.Services
@@ -6,11 +7,11 @@ namespace travel_agency_service.Services
     public class ReminderService
     {
         private readonly ApplicationDbContext _context;
-        private readonly EmailSender _emailSender;
+        private readonly IEmailSender _emailSender; // ✅ ממשק
 
         public ReminderService(
             ApplicationDbContext context,
-            EmailSender emailSender)
+            IEmailSender emailSender) // ✅ ממשק
         {
             _context = context;
             _emailSender = emailSender;
@@ -18,7 +19,6 @@ namespace travel_agency_service.Services
 
         // 🔔 Send reminders 5 days before trip
         public async Task SendUpcomingTripRemindersAsync()
-
         {
             Console.WriteLine("🔔 ReminderService RUNNING");
 
@@ -38,9 +38,8 @@ namespace travel_agency_service.Services
                 int daysBeforeTrip =
                     (package.StartDate.Date - today).Days;
 
-                // ⏰ RULE DEFINED BY ADMIN: 5 days before trip
-                if (daysBeforeTrip ==5)
-
+                // ⏰ RULE: 5 days before trip
+                if (daysBeforeTrip == 5)
                 {
                     await _emailSender.SendEmailAsync(
                         booking.User.Email,

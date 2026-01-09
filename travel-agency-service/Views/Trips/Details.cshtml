@@ -78,7 +78,7 @@
                     <!-- Important Dates -->
                     <div class="row">
                         <div class="col-md-6 mb-2">
-                            <strong>:Latest booking date</strong><br />
+                            <strong>Latest booking date:</strong><br />
 
                             @if (LastBookingDate.HasValue)
                             {
@@ -105,7 +105,7 @@
 
 
                         <div class="col-md-6 mb-2">
-                            <strong>:Cancellation allowed until</strong><br />
+                            <strong>Cancellation allowed until:</strong><br />
                             @if (cancellationDeadline.HasValue)
                             {
                                 <span class="fw-bold @(canCancel ? "text-success" : "text-danger")">
@@ -198,72 +198,84 @@
                     }
                     else
                     {
-                        <form asp-action="Book"
-                              asp-controller="Trips"
-                              method="post"
-                              class="mb-2">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <!-- ✅ משתמש מחובר -->
 
-                            @Html.AntiForgeryToken()
+                            <form asp-action="Book"
+                                  asp-controller="Trips"
+                                  method="post"
+                                  class="mb-2">
 
-                            <input type="hidden" name="packageId" value="@package.Id" />
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="packageId" value="@package.Id" />
 
-                            <div class="mb-2">
-                                <label class="form-label">Number of Rooms</label>
-                                <select class="form-select" name="rooms" id="roomsSelect">
-                                    @for (int i = 1; i <= package.AvailableRooms; i++)
-                                    {
-                                        <option value="@i">@i</option>
-                                    }
-                                </select>
-                            </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Number of Rooms</label>
+                                    <select class="form-select" name="rooms" id="roomsSelect">
+                                        @for (int i = 1; i <= package.AvailableRooms; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </div>
 
-                            <button type="submit"
-                                    class="btn btn-outline-primary w-100">
-                                Book
-                            </button>
-                        </form>
+                                <button type="submit" class="btn btn-outline-primary w-100">
+                                    Book
+                                </button>
+                            </form>
 
+                            <form asp-action="Book"
+                                  asp-controller="Trips"
+                                  method="post"
+                                  class="mb-2"
+                                  onsubmit="syncRooms(this)">
 
-                        <form asp-action="Book"
-                              asp-controller="Trips"
-                              method="post"
-                              class="mb-2"
-                              onsubmit="syncRooms(this)">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="packageId" value="@package.Id" />
+                                <input type="hidden" name="rooms" class="rooms-hidden" />
+                                <input type="hidden" name="payNow" value="true" />
 
-                            @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary w-100">
+                                    Buy Now
+                                </button>
+                            </form>
 
-                            <input type="hidden" name="packageId" value="@package.Id" />
+                            <form asp-action="AddToCart"
+                                  asp-controller="Cart"
+                                  method="post"
+                                  onsubmit="syncRooms(this)">
 
-                            <input type="hidden" name="rooms" class="rooms-hidden" />
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="packageId" value="@package.Id" />
+                                <input type="hidden" name="rooms" class="rooms-hidden" />
 
-                            <input type="hidden" name="payNow" value="true" />
+                                <button type="submit"
+                                        class="btn btn-outline-secondary w-100 btn-add-cart-rect">
+                                    🛒 Add to Cart
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <!-- 🔐 אורח -->
 
-                            <button type="submit"
-                                    class="btn btn-primary w-100">
-                                Buy Now
-                            </button>
-                        </form>
+                            <a asp-area="Identity"
+                               asp-page="/Account/Login"
+                               asp-route-returnUrl="@Url.Action("Details", "Trips", new { id = package.Id })"
+                               class="btn btn-primary w-100 mb-2">
+                                Login to Book
+                            </a>
 
-
-                        <form asp-action="AddToCart"
-                              asp-controller="Cart"
-                              method="post"
-                            onsubmit="syncRooms(this)">
-
-                            @Html.AntiForgeryToken()
-
-                            <input type="hidden" name="packageId" value="@package.Id" />
-<input type="hidden" name="rooms" class="rooms-hidden" />
-
-                            <button type="submit"
-                                    class="btn btn-outline-secondary w-100 btn-add-cart-rect">
-                                🛒 Add to Cart
-                            </button>
-                        </form>
-
-
-
+                            <a asp-area="Identity"
+                               asp-page="/Account/Login"
+                               asp-route-returnUrl="@Url.Action("Details", "Trips", new { id = package.Id })"
+                               class="btn btn-outline-secondary w-100">
+                                Login to Add to Cart
+                            </a>
+                        }
                     }
+
 
                 </div>
             </div>

@@ -167,22 +167,37 @@
                                     </div>
 
                                     <!-- ADD TO CART -->
-                                    <form asp-action="AddToCart"
-                                          asp-controller="Cart"
-                                          method="post"
-                                          class="mb-2"
-                                          onclick="event.stopPropagation();">
+                                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                    {
+                                        <!-- ✅ משתמש מחובר -->
+                                        <form asp-action="AddToCart"
+                                              asp-controller="Cart"
+                                              method="post"
+                                              class="mb-2"
+                                              onclick="event.stopPropagation();">
 
-                                        @Html.AntiForgeryToken()
+                                            @Html.AntiForgeryToken()
 
-                                        <input type="hidden" name="packageId" value="@p.Id" />
-                                        <input type="hidden" name="rooms" value="1" />
+                                            <input type="hidden" name="packageId" value="@p.Id" />
+                                            <input type="hidden" name="rooms" value="1" />
 
-                                        <button type="submit"
-                                                class="btn btn-outline-secondary btn-sm w-100 btn-add-cart-rect">
-                                            🛒 Add to Cart
-                                        </button>
-                                    </form>
+                                            <button type="submit"
+                                                    class="btn btn-outline-secondary btn-sm w-100 btn-add-cart-rect">
+                                                🛒 Add to Cart
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <!-- 🔐 אורח -->
+                                        <a asp-area="Identity"
+                                           asp-page="/Account/Login"
+                                           asp-route-returnUrl="@Url.Action("Details", "Trips", new { id = p.Id })"
+                                           class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                                            🛒 Login to Add to Cart
+                                        </a>
+                                    }
+
 
                                     <!-- DETAILS -->
                                     <a asp-controller="Trips"

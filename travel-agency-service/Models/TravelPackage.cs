@@ -38,7 +38,7 @@ namespace travel_agency_service.Models
 
         public int AgeLimitation { get; set; }
 
-        [Required]
+        [Required]  
         public string Description { get; set; } = "";
 
         // שמירת כל התמונות כמחרוזת (URL בכל שורה)

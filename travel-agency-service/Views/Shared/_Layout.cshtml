@@ -24,25 +24,59 @@
 
                 <!-- Logo -->
                 <a class="navbar-brand"
-                   asp-controller="Home"
-                   asp-action="Index">
+                   asp-controller="Trips"
+                   asp-action="Gallery">
                     ✈️ Travel Agency
                 </a>
+
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <ul class="navbar-nav">
 
                         <!-- Home (כולם) -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Home
-                            </a>
-                        </li>
-
+                       
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <!-- 👤 USER MENU -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle"
+                                       href="#"
+                                       role="button"
+                                       data-bs-toggle="dropdown"
+                                       aria-expanded="false">
+                                        My Account
+                                    </a>
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-area="Identity"
+                                               asp-page="/Account/Manage/Index">
+                                                👤 Personal Info
+                                            </a>
+                                        </li>
+
+                                  
+
+                                        <li><hr class="dropdown-divider" /></li>
+
+                                        <li>
+                                            <form asp-area="Identity"
+                                                  asp-page="/Account/Logout"
+                                                  method="post">
+                                                <button class="dropdown-item text-danger">
+                                                    🚪 Logout
+                                                </button>
+                                            </form>
+                                        </li>
+
+                                    </ul>
+                                </li>
+                            }
+
                             <!-- 👤 USER -->
                             if (!User.IsInRole("Admin"))
                             {
@@ -71,15 +105,6 @@
                                 </li>
                             }
 
-                            <!-- Account (כולם מחוברים) -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area="Identity"
-                                   asp-page="/Account/Manage/Index">
-                                    Account
-                                </a>
-                            </li>
-
                             <!-- Logout -->
                             <li class="nav-item">
                                 <form asp-area="Identity"
@@ -92,6 +117,26 @@
                                 </form>
                             </li>
                         }
+                        else
+                        {
+                            <!-- 🔐 לא מחובר -->
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Login">
+                                    Login
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Register">
+                                    Sign Up
+                                </a>
+                            </li>
+                        }
+
 
                     </ul>
                 </div>

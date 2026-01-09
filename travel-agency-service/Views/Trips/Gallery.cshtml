@@ -185,45 +185,105 @@
         </form>
 
         <!-- Trips Cards -->
-        <div class="row g-4">
+      <div class="gallery-cards">
 
-            @foreach (var item in Model)
-            {
-                var p = item.Package;
+    @foreach (var item in Model)
+    {
+        var p = item.Package;
+        var hasDiscount = p.HasActiveDiscount();
 
-                <div class="col-md-4 col-lg-3">
-                    <div class="card h-100 shadow-sm">
+        <div class="trip-card">
 
-                        <img src="@p.MainImageUrl"
-                             class="card-img-top"
-                             alt="@p.Destination" />
+            <!-- תמונה -->
+            <div class="trip-image">
+                <img src="@p.MainImageUrl" alt="@p.Destination" />
+                    <span class="badge category">
+                        @p.PackageType
+                    </span>
 
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">
-                                @p.Destination, @p.Country
-                            </h5>
+                @if (hasDiscount)
+                {
+                    <span class="badge discount">
+                        חיסכון
+                        @{
+                            var percent =
+                                (int)((p.BasePrice - p.GetCurrentPrice()) / p.BasePrice * 100);
+                        }%
+                    </span>
+                }
 
-                            <p class="text-muted mb-2">
-                                @p.StartDate.ToShortDateString() –
-                                @p.EndDate.ToShortDateString()
-                            </p>
+                <span class="badge new">חדש</span>
+                    @{
+                        var rating = item.LatestReviews.Any()
+                        ? Math.Round(item.LatestReviews.Average(r => r.Rating), 1)
+                        : (double?)null;
+                    }
 
-                            <p class="fw-bold">
-                                @p.GetCurrentPrice() ₪
-                            </p>
-
-                            <a asp-action="Details"
-                               asp-route-id="@p.Id"
-                               class="btn btn-outline-primary mt-auto">
-                                View Trip
-                            </a>
+                    @if (rating != null)
+                    {
+                        <div class="rating-badge">
+                            <span class="star">★</span>
+                            <span class="rating-value">@rating</span>
                         </div>
+                    }
+            </div>
 
-                    </div>
+            <!-- תוכן -->
+            <div class="trip-content">
+
+                <h4 class="trip-title">
+                    @p.Destination
+                </h4>
+
+                <div class="trip-location">
+                    📍 @p.Country
                 </div>
-            }
 
+                <p class="trip-desc">
+                    @p.Description?.Substring(0, Math.Min(90, p.Description.Length))...
+                </p>
+
+                <div class="trip-info">
+                    <span>👤 +18</span>
+                        <span>
+                            📅 @p.StartDate.ToString("dd/MM/yyyy") –
+                            @p.EndDate.ToString("dd/MM/yyyy")
+                        </span>
+
+                </div>
+
+                <!-- מחיר -->
+                <div class="trip-price">
+                    @if (hasDiscount)
+                    {
+                        <span class="old-price">
+                            ₪@p.BasePrice
+                        </span>
+                    }
+
+                    <span class="new-price">
+                        ₪@p.GetCurrentPrice()
+                    </span>
+                        <span class="per-person">per person</span>
+                </div>
+
+                <!-- כפתורים -->
+                <div class="trip-actions">
+                    <a asp-action="Details"
+                       asp-route-id="@p.Id"
+                       class="btn-primary">
+                        For details and Book
+                    </a>
+
+                   
+                </div>
+
+            </div>
         </div>
+    }
+
+</div>
+
     </section>
 
         

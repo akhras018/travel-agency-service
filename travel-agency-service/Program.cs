@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using travel_agency_service.Data;
 using travel_agency_service.Models;
@@ -18,6 +18,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // ✅ Identity – פעם אחת בלבד
@@ -30,7 +32,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<WaitingListService>();
-builder.Services.AddScoped<EmailSender>();
 
 // 🔔 ADDED – Automatic reminders
 builder.Services.AddScoped<ReminderService>();
@@ -57,7 +58,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-var app = builder.Build();
+    var app = builder.Build();
 
 // Seed roles & admins
 using (var scope = app.Services.CreateScope())
@@ -88,7 +89,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Trips}/{action=Gallery}/{id?}");
 
 app.MapRazorPages();
 

@@ -9,6 +9,7 @@ using travel_agency_service.Models;
 using travel_agency_service.Models.ViewModels;
 using travel_agency_service.Pdf;
 using travel_agency_service.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace travel_agency_service.Controllers
 {
@@ -17,20 +18,18 @@ namespace travel_agency_service.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly WaitingListService _waitingListService;
-        private readonly EmailSender _emailSender;
+        private readonly IEmailSender _emailSender;
 
         public TripsController(
             ApplicationDbContext context,
-            WaitingListService waitingListService, EmailSender emailSender)
+            WaitingListService waitingListService, IEmailSender emailSender)
         {
             _context = context;
             _waitingListService = waitingListService;
             _emailSender = emailSender;
         }
+        [AllowAnonymous]
 
-        // =========================
-        // GET: Trips/Gallery
-        // =========================
         public async Task<IActionResult> Gallery(
             string? sortBy,
             PackageType? category,
@@ -125,6 +124,14 @@ namespace travel_agency_service.Controllers
                 .GroupBy(b => b.TravelPackageId)
                 .Select(g => new { PackageId = g.Key, Count = g.Count() })
                 .ToListAsync();
+            var reviewsLookup = await _context.TripReviews
+    .GroupBy(r => r.TravelPackageId)
+    .Select(g => new
+    {
+        PackageId = g.Key,
+        Reviews = g.ToList()
+    })
+    .ToListAsync();
 
             var model = packages.Select(p =>
             {
@@ -138,6 +145,10 @@ namespace travel_agency_service.Controllers
                 var bookingCount = bookingCounts
                     .FirstOrDefault(b => b.PackageId == p.Id)?.Count ?? 0;
 
+                var latestReviews = reviewsLookup
+     .FirstOrDefault(r => r.PackageId == p.Id)?.Reviews
+     ?? new List<TripReview>();
+
                 return new TripGalleryItemViewModel
                 {
                     Package = p,
@@ -146,8 +157,11 @@ namespace travel_agency_service.Controllers
                     IsUserWaiting = userEntry != null,
                     UserPosition = userEntry != null
                         ? waitingForPackage.IndexOf(userEntry) + 1
-                        : (int?)null
+                        : (int?)null,
+
+                    LatestReviews = latestReviews
                 };
+
             }).ToList();
 
             ViewBag.SortBy = sortBy;
@@ -628,13 +642,15 @@ namespace travel_agency_service.Controllers
         }
 
 
-        
+
 
 
 
         // =========================
         // GET: Trips/Search
         // =========================
+        [AllowAnonymous]
+
         public async Task<IActionResult> Search(
             string? destination,
             DateTime? startDate,
@@ -791,6 +807,8 @@ namespace travel_agency_service.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+
         public async Task<IActionResult> Details(int id)
         {
             var package = await _context.TravelPackages
