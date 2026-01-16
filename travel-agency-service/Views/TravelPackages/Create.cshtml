@@ -90,6 +90,25 @@
         <label asp-for="Description"></label>
         <textarea asp-for="Description" class="form-control"></textarea>
     </div>
+    <hr />
+    <h5>🏨 Hotel Details</h5>
+
+    <div class="mb-2">
+        <label asp-for="HotelName">Hotel Name</label>
+        <input asp-for="HotelName" class="form-control" />
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="HotelMeals">Meals Included</label>
+        <input asp-for="HotelMeals" class="form-control"
+               placeholder="e.g. Breakfast / Breakfast & Dinner" />
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="HotelWebsite">Hotel Website</label>
+        <input asp-for="HotelWebsite" class="form-control"
+               placeholder="https://www.hotel-example.com" />
+    </div>
 
     <div class="mb-3">
         <label>תמונה ראשית</label>

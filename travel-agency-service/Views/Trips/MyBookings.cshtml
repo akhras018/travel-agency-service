@@ -54,7 +54,7 @@
                                     <div class="col-md-8">
                                         <div class="card-body h-100 d-flex flex-column">
 
-                                            <div class="d-flex justify-content-between mb-2">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <div>
                                                     <h4 class="fw-bold mb-1">
                                                         @package.Destination, @package.Country
@@ -66,15 +66,27 @@
                                                     </div>
                                                 </div>
 
-                                                <span class="badge @(booking.IsPaid ? "bg-success" : "bg-warning text-dark")">
+                                                <span class="payment-status @(booking.IsPaid ? "paid" : "unpaid")">
                                                     @(booking.IsPaid ? "Paid" : "Unpaid")
                                                 </span>
+
                                             </div>
 
                                             <div class="row text-muted small mb-2">
                                                 <div class="col-md-4">
                                                     <strong>Rooms:</strong> @booking.Rooms
                                                 </div>
+                                                @if (booking.RoomTypes.Any())
+                                                {
+                                                    <div class="mt-1">
+                                                        @foreach (var type in booking.RoomTypes)
+                                                        {
+                                                            <div class="small text-muted">• @type room</div>
+                                                        }
+                                                    </div>
+                                                }
+
+
                                                 <div class="col-md-4">
                                                     <strong>Package:</strong> @package.PackageType
                                                 </div>

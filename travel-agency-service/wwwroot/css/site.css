@@ -1079,3 +1079,66 @@ html, body {
     .rating-badge .rating-value {
         color: #111827;
     }
+/* Hot Deals – prices side by side */
+.deal-price {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* רווח בין המחירים */
+}
+/* Navbar Logo */
+.navbar-logo {
+    height: 42px; /* ⬅️ לוגו גדול וברור */
+    width: auto;
+}
+
+.navbar-logo-text {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #0d6efd; /* כחול Bootstrap */
+    text-decoration: none;
+}
+@media print {
+    .navbar-logo {
+        height: 60px !important; /* ⬅️ לוגו גדול ב-PDF */
+    }
+
+    .navbar-logo-text {
+        font-size: 1.8rem !important;
+        font-weight: 800;
+    }
+}
+/* Paid / Unpaid – size exactly to text */
+.payment-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px; /* ✔️ מדויק */
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 5px;
+    line-height: 1;
+    white-space: nowrap;
+    width: fit-content;
+    align-self: flex-start; /* 🔥 זה הפיקס האמיתי */
+}
+
+
+    /* צבעים */
+    .payment-status.paid {
+        background-color: #198754; /* green */
+        color: white;
+    }
+
+    .payment-status.unpaid {
+        background-color: #ffc107; /* warning */
+        color: #212529;
+    }
+.hotel-details {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+    .hotel-details ul {
+        margin-bottom: 0;
+    }

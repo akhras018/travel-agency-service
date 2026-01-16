@@ -4,7 +4,7 @@
     ViewData["Title"] = "Search Results";
 }
 
-<div class="search-page" dir="rtl">
+<div class="search-page">
 
     <!-- ================= HERO ================= -->
     <section class="trips-hero">
@@ -72,10 +72,9 @@
 
     <!-- ================= RESULTS ================= -->
     <section class="container-fluid my-5">
-        <div class="row justify-content-end">
-            <div class="col-lg-10 col-xl-9">
+      
 
-                <h3 class="text-end mb-4">Search Results</h3>
+                <h3 class=" mb-4">Search Results</h3>
 
                 @if (!Model.Any())
                 {
@@ -83,136 +82,103 @@
                 }
                 else
                 {
-                    foreach (var item in Model)
-                    {
-                        var p = item.Package;
+                    <div class="gallery-cards">
 
-                        <div class="card mb-4 shadow-sm">
-                            <div class="row g-0">
+                        @foreach (var item in Model)
+                        {
+                            var p = item.Package;
+                            var hasDiscount = p.HasActiveDiscount();
 
-                                <!-- IMAGE -->
-                                <div class="col-md-4 order-md-3">
-                                    <img src="@p.MainImageUrl"
-                                         class="img-fluid h-100"
-                                         style="object-fit:cover" />
-                                </div>
+                            <div class="trip-card">
 
-                                <!-- DETAILS -->
-                                <div class="col-md-5 order-md-2 p-3 text-end">
-                                    <h5>@p.Destination, @p.Country</h5>
+                                <!-- תמונה -->
+                                <div class="trip-image">
+                                    <img src="@p.MainImageUrl" alt="@p.Destination" />
+                                    <span class="badge category">
+                                        @p.PackageType
+                                    </span>
 
-                                    <p class="mb-1">
-                                        Dates:
-                                        @p.StartDate.ToShortDateString() –
-                                        @p.EndDate.ToShortDateString()
-                                    </p>
-
-                                    <p class="mb-1">
-                                        Package type: @p.PackageType
-                                    </p>
-
-                                    @if (item.BookingCount >= 3)
+                                    @if (hasDiscount)
                                     {
-                                        <span class="badge bg-warning text-dark mb-2">
-                                            ⭐ popular
+                                        <span class="badge discount">
+                                            חיסכון @((int)((p.BasePrice - p.GetCurrentPrice()) / p.BasePrice * 100))%
                                         </span>
+
                                     }
-                                    @if (item.LatestReviews.Any())
-                                      {
-                                            <div class="mt-2 border-top pt-2">
-                                                <div class="small fw-bold text-muted mb-1">
-                                                    Reviews
-                                                </div>
 
-                                                @foreach (var review in item.LatestReviews.Take(3))
-                                                {
-                                                    <div class="mb-2">
-                                                        <div>
-                                                            @for (int i = 1; i <= 3; i++)
-                                                            {
-                                                                <span class="@(i <= review.Rating ? "text-warning" : "text-secondary")">★</span>
-                                                            }
-                                                        </div>
-                                                        <div class="small text-muted">
-                                                            @review.Comment
-                                                        </div>
-                                                    </div>
-                                                }
-                                           </div>
-                                        }
-                                    
+                                    <span class="badge new">חדש</span>
+                                    @{
+                                        var rating = item.LatestReviews.Any()
+                                        ? Math.Round(item.LatestReviews.Average(r => r.Rating), 1)
+                                        : (double?)null;
+                                    }
 
-
+                                    @if (rating != null)
+                                    {
+                                        <div class="rating-badge">
+                                            <span class="star">★</span>
+                                            <span class="rating-value">@rating</span>
+                                        </div>
+                                    }
                                 </div>
 
-                                <!-- PRICE + ACTIONS -->
-                                <div class="col-md-3 order-md-1 p-3 text-end d-flex flex-column justify-content-end">
+                                <!-- תוכן -->
+                                <div class="trip-content">
 
-                                    <div class="mb-3">
-                                        @if (p.HasActiveDiscount())
-                                        {
-                                            <div class="text-muted text-decoration-line-through">
-                                                @p.BasePrice₪
-                                            </div>
-                                            <div class="fw-bold text-danger fs-5">
-                                                @p.GetCurrentPrice()₪
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="fw-bold fs-5">
-                                                @p.BasePrice₪
-                                            </div>
-                                        }
+                                    <h4 class="trip-title">
+                                        @p.Destination
+                                    </h4>
+
+                                    <div class="trip-location">
+                                        📍 @p.Country
                                     </div>
 
-                                    <!-- ADD TO CART -->
-                                    @if (User.Identity != null && User.Identity.IsAuthenticated)
-                                    {
-                                        <!-- ✅ משתמש מחובר -->
-                                        <form asp-action="AddToCart"
-                                              asp-controller="Cart"
-                                              method="post"
-                                              class="mb-2"
-                                              onclick="event.stopPropagation();">
+                                    <p class="trip-desc">
+                                        @p.Description?.Substring(0, Math.Min(90, p.Description.Length))...
+                                    </p>
 
-                                            @Html.AntiForgeryToken()
+                                    <div class="trip-info">
+                                        <span>👤 +@p.AgeLimitation</span>
+                                        <span>
+                                            📅 @p.StartDate.ToString("dd/MM/yyyy") –
+                                            @p.EndDate.ToString("dd/MM/yyyy")
+                                        </span>
 
-                                            <input type="hidden" name="packageId" value="@p.Id" />
-                                            <input type="hidden" name="rooms" value="1" />
+                                    </div>
 
-                                            <button type="submit"
-                                                    class="btn btn-outline-secondary btn-sm w-100 btn-add-cart-rect">
-                                                🛒 Add to Cart
-                                            </button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <!-- 🔐 אורח -->
-                                        <a asp-area="Identity"
-                                           asp-page="/Account/Login"
-                                           asp-route-returnUrl="@Url.Action("Details", "Trips", new { id = p.Id })"
-                                           class="btn btn-outline-secondary btn-sm w-100 mb-2">
-                                            🛒 Login to Add to Cart
+                                    <!-- מחיר -->
+                                    <div class="trip-price">
+                                        @if (hasDiscount)
+                                        {
+                                            <span class="old-price">
+                                                ₪@p.BasePrice
+                                            </span>
+                                        }
+
+                                        <span class="new-price">
+                                            ₪@p.GetCurrentPrice()
+                                        </span>
+                                        <span class="per-person">per person</span>
+                                    </div>
+
+                                    <!-- כפתורים -->
+                                    <div class="trip-actions">
+                                        <a asp-action="Details"
+                                           asp-route-id="@p.Id"
+                                           class="btn-primary">
+                                            For details and Book
                                         </a>
-                                    }
 
 
-                                    <!-- DETAILS -->
-                                    <a asp-controller="Trips"
-                                       asp-action="Details"
-                                       asp-route-id="@p.Id"
-                                       class="btn btn-primary btn-sm w-100">
-                                        Package Details
-                                    </a>
+                                    </div>
 
                                 </div>
                             </div>
-                        </div>
-                    }
+                        }
+
+                    </div>
                 }
-            </div>
-        </div>
+            
+        
     </section>
 </div>

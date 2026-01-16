@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace travel_agency_service.Models
 {
@@ -21,6 +23,13 @@ namespace travel_agency_service.Models
         public bool ReminderSent { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+      
+       public string RoomTypesJson { get; set; } = "[]";
+
+        public List<string> RoomTypes =>
+            string.IsNullOrWhiteSpace(RoomTypesJson)
+                ? new List<string>()
+                : (JsonSerializer.Deserialize<List<string>>(RoomTypesJson) ?? new List<string>());
 
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using travel_agency_service.Data;
 
@@ -11,9 +12,11 @@ using travel_agency_service.Data;
 namespace travel_agency_service.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260110154752_AddHotelFieldsToTravelPackage")]
+    partial class AddHotelFieldsToTravelPackage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -285,10 +288,6 @@ namespace travel_agency_service.Migrations
                     b.Property<bool>("ReminderSent")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RoomTypesJson")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Rooms")
                         .HasColumnType("int");
 
@@ -318,10 +317,6 @@ namespace travel_agency_service.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("RoomTypesJson")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rooms")
                         .HasColumnType("int");
@@ -400,9 +395,6 @@ namespace travel_agency_service.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("DeluxeRoomExtra")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -449,14 +441,8 @@ namespace travel_agency_service.Migrations
                     b.Property<int>("PackageType")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("StandardRoomExtra")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal>("SuiteRoomExtra")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

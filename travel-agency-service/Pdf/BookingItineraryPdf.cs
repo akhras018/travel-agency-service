@@ -15,7 +15,7 @@ namespace travel_agency_service.Pdf
         public BookingItineraryPdf(Booking booking)
         {
             _booking = booking;
-            _logo = File.ReadAllBytes("wwwroot/images/airplane-logo-template-airplane-logo-elements-airplane-logo-icon-vector.jpg");
+            _logo = File.ReadAllBytes("wwwroot/images/logoo.png");
 
         }
 
@@ -46,10 +46,11 @@ namespace travel_agency_service.Pdf
                         });
 
                         // תמונה מימין
-                        row.ConstantItem(80)
+                        row.ConstantItem(150)
                             .AlignRight()
                             .AlignMiddle()
-                            .Image(_logo);
+                            .Height(90)                // ⬅️ גובה הלוגו
+                            .Image(_logo, ImageScaling.FitArea);
                     });
                 });
                 page.Content().Element(ComposeContent);
@@ -123,8 +124,15 @@ namespace travel_agency_service.Pdf
                     Row("Destination", $"{p.Destination}, {p.Country}");
                     Row("Travel Dates", $"{p.StartDate:d} – {p.EndDate:d}");
                     Row("Rooms", _booking.Rooms.ToString());
+                    if (_booking.RoomTypes.Any())
+                    {
+                        var roomTypesText = string.Join("\n",
+                            _booking.RoomTypes.Select((rt, i) => $"Room {i + 1}: {rt}"));
+
+                        Row("Room Types", roomTypesText);
+                    }
                     Row("Price per Room", $"₪{unitPrice}");
-                    Row("Total Price", $"₪{totalPrice}");
+                    Row("Total Price", $"₪{totalPrice}");  
                     Row("Payment Status", _booking.IsPaid ? "Paid" : "Unpaid");
                 });
 

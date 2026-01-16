@@ -72,7 +72,16 @@ namespace travel_agency_service.Models
 
         [DataType(DataType.Date)]
         public DateTime? CancellationDeadline { get; set; }
+        public string? HotelName { get; set; }
 
+        public string? HotelMeals { get; set; }
+
+        [Url]
+        public string? HotelWebsite { get; set; }
+        // 💰 Room type price additions
+        public decimal StandardRoomExtra { get; set; } = 0;
+        public decimal DeluxeRoomExtra { get; set; } = 300;
+        public decimal SuiteRoomExtra { get; set; } = 700;
 
     }
 

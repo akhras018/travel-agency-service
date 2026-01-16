@@ -112,7 +112,7 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
         {
             // 🔹 כאן השינוי
             // OnGetAsync
-            returnUrl ??= Url.Content("~/Trips/Gallery");
+            returnUrl ??= Url.Content("~/");
 
             if (!ModelState.IsValid)
             {
@@ -127,17 +127,19 @@ namespace travel_agency_service.Areas.Identity.Pages.Account
 
             if (result.Succeeded)
             {
-                _logger.LogInformation("User logged in.");
-
                 var user = await _userManager.FindByEmailAsync(Input.Email);
 
                 if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
                 {
-                    return RedirectToAction("Index", "Admin");
+                    return RedirectToAction(
+                        "Index",
+                        "Admin",
+                        new { area = "Admin" }
+                    );
                 }
 
-                // 🔹 משתמש רגיל → Home
-                return LocalRedirect(returnUrl);
+                // משתמש רגיל
+                return RedirectToAction("Gallery", "Trips");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");

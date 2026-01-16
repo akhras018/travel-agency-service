@@ -43,8 +43,19 @@
                         </div>
 
                         <!-- Rooms -->
+                       
                         <div class="col-md-2 text-center">
                             <strong>@item.Rooms</strong> rooms
+
+                            @if (item.RoomTypes.Any())
+                            {
+                                <ul class="list-unstyled small mt-1">
+                                    @foreach (var rt in item.RoomTypes)
+                                    {
+                                        <li>🛏️ @rt</li>
+                                    }
+                                </ul>
+                            }
                         </div>
 
                         <!-- Price -->

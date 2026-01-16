@@ -57,8 +57,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor();
 
-    var app = builder.Build();
+var app = builder.Build();
 
 // Seed roles & admins
 using (var scope = app.Services.CreateScope())

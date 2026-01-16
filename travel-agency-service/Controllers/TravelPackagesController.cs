@@ -14,13 +14,17 @@ namespace travel_agency_service.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IEmailSender _emailSender;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public TravelPackagesController(
             ApplicationDbContext context,
-            IEmailSender emailSender)
+            IEmailSender emailSender, IHttpContextAccessor httpContextAccessor)
+
         {
             _context = context;
             _emailSender = emailSender;
+            _httpContextAccessor = httpContextAccessor;
+
         }
 
         // GET: TravelPackages
@@ -343,6 +347,10 @@ namespace travel_agency_service.Controllers
 
             var now = DateTime.UtcNow;
             var expiration = TimeSpan.FromHours(24); // 🔁 בדיקה (להחזיר ל-24 שעות)
+            var request = _httpContextAccessor.HttpContext?.Request;
+
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var tripUrl = $"{baseUrl}/Trips/Details/{package.Id}";
 
             var waitingList = await _context.WaitingListEntries
                 .Include(w => w.User)
@@ -378,13 +386,17 @@ namespace travel_agency_service.Controllers
                 return;
 
             var subject = "A room is now available!";
+
             var body = $@"
 Hello {nextUser.User.FirstName},
 
 Good news! 🎉  
 A room is now available for the trip to {package.Destination}, {package.Country}.
 
-Please book the package within the given time window.
+👉 Click the link below to book your trip:
+{tripUrl}
+
+⏳ Please note: the room is reserved for you for the next 24 hours.
 
 Best regards,
 Travel Agency Team

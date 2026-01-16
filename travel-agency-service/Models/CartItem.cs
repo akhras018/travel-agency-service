@@ -9,6 +9,7 @@
 
         public int TravelPackageId { get; set; }
         public TravelPackage TravelPackage { get; set; }
+        public string RoomTypesJson { get; set; } = "[]";
 
         public int Rooms { get; set; }
         public DateTime CreatedAt { get; set; }

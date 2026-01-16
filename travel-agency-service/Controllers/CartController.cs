@@ -6,6 +6,7 @@ using travel_agency_service.Data;
 using travel_agency_service.Models;
 using travel_agency_service.Helpers;
 using travel_agency_service.Models.ViewModels;
+using System.Text.Json;
 
 [Authorize]
 public class CartController : Controller
@@ -42,7 +43,11 @@ public class CartController : Controller
             UnitPrice    = c.TravelPackage.GetCurrentPrice(),
             ImageUrl = c.TravelPackage.MainImageUrl
                 ?.Split('\n', StringSplitOptions.RemoveEmptyEntries)
-                .FirstOrDefault()
+                .FirstOrDefault(),
+            RoomTypes = string.IsNullOrWhiteSpace(c.RoomTypesJson)
+    ? new List<string>()
+    : JsonSerializer.Deserialize<List<string>>(c.RoomTypesJson)!
+
         }).ToList();
 
         return View(model);
@@ -55,7 +60,7 @@ public class CartController : Controller
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddToCart(int packageId, int rooms)
+    public async Task<IActionResult> AddToCart(int packageId, int rooms, string roomTypesJson)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -73,9 +78,10 @@ public class CartController : Controller
                 UserId = userId,
                 TravelPackageId = packageId,
                 Rooms = rooms,
-             
+                RoomTypesJson = roomTypesJson ?? "[]",
                 CreatedAt = DateTime.UtcNow
             });
+
         }
 
         await _context.SaveChangesAsync();

@@ -86,7 +86,15 @@
                         </div>
                         <div class="deal-info">
                             <h5>@p.Destination</h5>
-                            <span>@p.GetCurrentPrice()₪</span>
+                            <div class="deal-price">
+                                <span class="new-price">
+                                    ₪@p.GetCurrentPrice()
+                                </span>
+                                <span class="old-price">
+                                    ₪@p.BasePrice
+                                </span>
+                               
+                            </div>
                         </div>
                     </div>
                 </a>
@@ -244,7 +252,7 @@
                 </p>
 
                 <div class="trip-info">
-                    <span>👤 +18</span>
+                        <span>👤 +@p.AgeLimitation</span>
                         <span>
                             📅 @p.StartDate.ToString("dd/MM/yyyy") –
                             @p.EndDate.ToString("dd/MM/yyyy")

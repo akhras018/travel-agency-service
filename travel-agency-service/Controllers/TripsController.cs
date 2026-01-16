@@ -10,6 +10,7 @@ using travel_agency_service.Models.ViewModels;
 using travel_agency_service.Pdf;
 using travel_agency_service.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Text.Json;
 
 namespace travel_agency_service.Controllers
 {
@@ -49,7 +50,15 @@ namespace travel_agency_service.Controllers
                 packagesQuery = packagesQuery.Where(p => p.PackageType == category.Value);
 
             if (!string.IsNullOrWhiteSpace(destination))
-                packagesQuery = packagesQuery.Where(p => p.Destination.Contains(destination));
+            {
+                var term = destination.Trim();
+
+                packagesQuery = packagesQuery.Where(p =>
+                    p.Destination.Contains(term) ||
+                    p.Country.Contains(term)
+                );
+            }
+
 
             if (!string.IsNullOrWhiteSpace(country))
                 packagesQuery = packagesQuery.Where(p => p.Country.Contains(country));
@@ -237,7 +246,7 @@ namespace travel_agency_service.Controllers
         // POST: Book
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Book(int packageId, int rooms, bool payNow)
+        public async Task<IActionResult> Book(int packageId, int rooms, bool payNow , string roomTypesJson)
 
         {
 
@@ -296,7 +305,8 @@ namespace travel_agency_service.Controllers
             {
                 TravelPackageId = packageId,
                 UserId = userId,
-                Rooms = rooms
+                Rooms = rooms,
+                RoomTypesJson = roomTypesJson ?? "[]"
             };
 
             _context.Bookings.Add(booking);
@@ -505,6 +515,10 @@ namespace travel_agency_service.Controllers
             booking.IsPaid = true;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
+            var roomTypesText = booking.RoomTypes.Any()
+    ? string.Join("<br />", booking.RoomTypes.Select((rt, i) => $"Room {i + 1}: {rt}"))
+    : "Not specified";
+
             await _emailSender.SendEmailAsync(
      booking.User.Email,
      "Payment Successful – Travel Agency Service",
@@ -543,7 +557,8 @@ namespace travel_agency_service.Controllers
                 </h2>
 
                 <p style='font-size:15px;line-height:1.6;'>
-                    Hello <strong>{booking.User.Email}</strong>,<br /><br />
+                    Hello <strong>{booking.User.FirstName} {booking.User.LastName}</strong>
+,<br /><br />
                     We are happy to inform you that your payment for the trip to
                     <strong>{booking.TravelPackage.Destination}</strong> has been completed successfully.
                 </p>
@@ -574,6 +589,16 @@ namespace travel_agency_service.Controllers
                         <td style='padding:10px;border-bottom:1px solid #eee;'><strong>Rooms</strong></td>
                         <td style='padding:10px;border-bottom:1px solid #eee;'>{booking.Rooms}</td>
                     </tr>
+<tr>
+    <td style='padding:10px;border-bottom:1px solid #eee;'>
+        <strong>Room Types</strong>
+    </td>
+ <td style='padding:10px;border-bottom:1px solid #eee;'>
+    {roomTypesText}
+</td>
+
+</tr>
+
 <tr>
     <td style='padding:10px;border-bottom:1px solid #eee;'>
         <strong>Total Paid</strong>
@@ -671,7 +696,15 @@ namespace travel_agency_service.Controllers
                 query = query.Where(p => p.PackageType == category.Value);
 
             if (!string.IsNullOrWhiteSpace(destination))
-                query = query.Where(p => p.Destination.Contains(destination));
+            {
+                var term = destination.Trim();
+
+                query = query.Where(p =>
+                    p.Destination.Contains(term) ||
+                    p.Country.Contains(term)
+                );
+            }
+
 
             if (startDate.HasValue)
             {

@@ -12,6 +12,7 @@ namespace travel_agency_service.Models.ViewModels
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public List<string> RoomTypes { get; set; } = new();
 
         public int Rooms { get; set; }
 

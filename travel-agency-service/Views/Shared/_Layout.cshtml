@@ -23,18 +23,30 @@
             <div class="container-fluid">
 
                 <!-- Logo -->
-                <a class="navbar-brand"
+                <a class="navbar-brand d-flex align-items-center gap-2"
                    asp-controller="Trips"
                    asp-action="Gallery">
-                    ✈️ Travel Agency
+
+                    <img src="~/images/logoo.png"
+                         alt="Travel Agency Logo"
+                         class="navbar-logo" />
+
                 </a>
+
 
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
                     <ul class="navbar-nav">
 
                         <!-- Home (כולם) -->
-                       
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-controller="Trips"
+                               asp-action="Gallery">
+                                Gallery
+                            </a>
+                        </li>
+
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
                             @if (User.Identity != null && User.Identity.IsAuthenticated)
