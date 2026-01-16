@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using System.Security.Claims;
+using System.Text.Json;
 using travel_agency_service.Data;
 using travel_agency_service.Models;
 using travel_agency_service.Models.ViewModels;
 using travel_agency_service.Pdf;
 using travel_agency_service.Services;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using System.Text.Json;
+
+using Stripe;
 
 namespace travel_agency_service.Controllers
 {
@@ -20,14 +23,21 @@ namespace travel_agency_service.Controllers
         private readonly ApplicationDbContext _context;
         private readonly WaitingListService _waitingListService;
         private readonly IEmailSender _emailSender;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
 
         public TripsController(
             ApplicationDbContext context,
-            WaitingListService waitingListService, IEmailSender emailSender)
+            WaitingListService waitingListService, IEmailSender emailSender, UserManager<ApplicationUser> userManager,
+    IConfiguration configuration)
         {
             _context = context;
             _waitingListService = waitingListService;
             _emailSender = emailSender;
+            _userManager = userManager;
+            _configuration = configuration;
+
+
         }
         [AllowAnonymous]
 
@@ -256,11 +266,22 @@ namespace travel_agency_service.Controllers
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // ❌ הטיול כבר התחיל או עבר
+            if (package.StartDate <= DateTime.UtcNow)
+            {
+                TempData["Message"] = "הטיול כבר התחיל ולא ניתן לבצע הזמנה.";
+                return RedirectToAction(nameof(Details), new { id = packageId });
+            }
 
             // ❌ כבר הזמין את הטיול הזה
-            var alreadyBooked = await _context.Bookings.AnyAsync(b =>
-                b.UserId == userId &&
-                b.TravelPackageId == packageId);
+            var alreadyBooked = await _context.Bookings
+          .Include(b => b.TravelPackage)
+          .AnyAsync(b =>
+              b.UserId == userId &&
+              b.TravelPackageId == packageId &&
+              b.TravelPackage.EndDate >= DateTime.UtcNow
+          );
+
 
             if (alreadyBooked)
             {
@@ -428,6 +449,7 @@ namespace travel_agency_service.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var booking = await _context.Bookings
+                .Include(b => b.TravelPackage)
                 .FirstOrDefaultAsync(b => b.Id == bookingId && b.UserId == userId);
 
             if (booking == null)
@@ -439,9 +461,51 @@ namespace travel_agency_service.Controllers
                 return RedirectToAction(nameof(MyBookings));
             }
 
-            ViewBag.BookingId = bookingId;
-            return View();
+            var totalPrice = booking.TravelPackage.GetCurrentPrice() * booking.Rooms;
+
+            // 🔐 Stripe secret key
+            StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+
+            // 🔹 יצירת PaymentIntent אמיתי
+            var paymentIntentService = new PaymentIntentService();
+            var paymentIntent = await paymentIntentService.CreateAsync(
+                new PaymentIntentCreateOptions
+                {
+                    Amount = (long)(totalPrice * 100), // Stripe עובד בסנטים
+                    Currency = "ils",
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true
+                    },
+                    Metadata = new Dictionary<string, string>
+                    {
+                { "bookingId", booking.Id.ToString() },
+                { "userId", userId }
+                    }
+                }
+            );
+
+            var model = new PayViewModel
+            {
+                BookingId = booking.Id,
+                TotalPrice = totalPrice,
+                PublishableKey = _configuration["Stripe:PublishableKey"],
+                ClientSecret = paymentIntent.ClientSecret!,   // ⭐⭐ זה החלק החסר
+
+                ReturnUrl = Url.Action(
+    "PaymentSuccess",
+    "Trips",
+    new { bookingId = booking.Id },
+    HttpContext.Request.Scheme
+)!
+
+            };
+            var key = _configuration["Stripe:SecretKey"];
+            Console.WriteLine("STRIPE KEY = " + key);
+
+            return View(model);
         }
+
 
         [HttpGet]
 
@@ -661,9 +725,105 @@ namespace travel_agency_service.Controllers
             return RedirectToAction(nameof(MyBookings));
         }
 
-        public IActionResult PaymentSuccess()
+        [HttpGet]
+        public async Task<IActionResult> PaymentSuccess(int bookingId)
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var booking = await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.TravelPackage)
+                .FirstOrDefaultAsync(b =>
+                    b.Id == bookingId &&
+                    b.UserId == userId
+                );
+
+            if (booking == null)
+                return RedirectToAction(nameof(MyBookings));
+
+            if (!booking.IsPaid)
+            {
+                booking.IsPaid = true;
+                booking.PaidAt = DateTime.UtcNow;
+                _context.Bookings.Update(booking);
+                await _context.SaveChangesAsync();
+
+                var totalPrice =
+                    booking.TravelPackage.GetCurrentPrice() * booking.Rooms;
+
+                var roomTypesText = booking.RoomTypes.Any()
+                    ? string.Join("<br />", booking.RoomTypes.Select((rt, i) => $"Room {i + 1}: {rt}"))
+                    : "Not specified";
+
+                await _emailSender.SendEmailAsync(
+                    booking.User.Email,
+                    "Payment Successful – Travel Agency Service",
+            $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+</head>
+<body style='margin:0;padding:0;background-color:#f4f6f8;font-family:Arial,Helvetica,sans-serif;'>
+
+<table width='100%' cellpadding='0' cellspacing='0'>
+<tr>
+<td align='center'>
+
+    <table width='600' cellpadding='0' cellspacing='0' 
+           style='background:#ffffff;border-radius:10px;overflow:hidden;
+                  box-shadow:0 8px 30px rgba(0,0,0,0.08);'>
+
+        <tr>
+            <td style='background:#0d6efd;color:white;padding:30px;text-align:center;'>
+                <h1 style='margin:0;font-size:26px;'>✈️ Travel Agency Service</h1>
+                <p style='margin:6px 0 0;font-size:15px;opacity:0.9;'>
+                    Booking Confirmation
+                </p>
+            </td>
+        </tr>
+
+        <tr>
+            <td style='padding:30px;color:#333;'>
+                <h2 style='margin-top:0;color:#0d6efd;'>Payment Successful ✅</h2>
+
+                <p>
+                    Hello <strong>{booking.User.FirstName} {booking.User.LastName}</strong>,<br /><br />
+                    We are happy to inform you that your payment for the trip to
+                    <strong>{booking.TravelPackage.Destination}</strong> has been completed successfully.
+                </p>
+
+                <table width='100%' cellpadding='0' cellspacing='0' style='margin-top:20px;border-collapse:collapse;'>
+                    <tr><td><strong>Booking ID</strong></td><td>{booking.Id}</td></tr>
+                    <tr><td><strong>Destination</strong></td><td>{booking.TravelPackage.Destination}</td></tr>
+                    <tr><td><strong>Travel Dates</strong></td>
+                        <td>{booking.TravelPackage.StartDate:dd/MM/yyyy} – {booking.TravelPackage.EndDate:dd/MM/yyyy}</td></tr>
+                    <tr><td><strong>Rooms</strong></td><td>{booking.Rooms}</td></tr>
+                    <tr><td><strong>Room Types</strong></td><td>{roomTypesText}</td></tr>
+                    <tr><td><strong>Total Paid</strong></td><td>₪{totalPrice}</td></tr>
+                    <tr><td><strong>Payment Status</strong></td><td style='color:green;font-weight:bold;'>Paid</td></tr>
+                </table>
+
+                <p style='margin-top:30px;font-size:14px;color:#666;'>
+                    Thank you for choosing <strong>Travel Agency Service</strong> 🌍
+                </p>
+            </td>
+        </tr>
+
+    </table>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>"
+                );
+            }
+
+
+            TempData["Message"] = "Payment completed successfully!";
+            return RedirectToAction(nameof(MyBookings));
         }
 
 
@@ -860,9 +1020,16 @@ namespace travel_agency_service.Controllers
 
 
             // ❗ בדיקה: האם המשתמש כבר הזמין את הטיול
-            var alreadyBooked = await _context.Bookings.AnyAsync(b =>
-                b.UserId == userId &&
-                b.TravelPackageId == package.Id);
+            var alreadyBooked = await _context.Bookings
+          .Include(b => b.TravelPackage)
+          .AnyAsync(b =>
+              b.UserId == userId &&
+              b.TravelPackageId == package.Id &&
+              b.TravelPackage.EndDate >= DateTime.UtcNow
+          );
+
+
+
             var userEntry = waitingList.FirstOrDefault(w => w.UserId == userId);
             int waitingCountWithoutUser = waitingList
              .Count(w => w.UserId != userId);
@@ -977,8 +1144,13 @@ namespace travel_agency_service.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var userName =
+        User.FindFirstValue("FullName") ??
+        User.FindFirstValue(ClaimTypes.Name) ??
+        userEmail?.Split('@')[0];
 
             // הגנה: רק משתמש עם הזמנה
+            var user = await _userManager.FindByIdAsync(userId);
 
 
 
@@ -989,7 +1161,10 @@ namespace travel_agency_service.Controllers
             {
                 UserId = userId,
                 Rating = Rating,
+                UserName = $"{user.FirstName} {user.LastName}".Trim(),
+
                 Comment = Comment,
+
                 UserEmail = userEmail!,   // ⭐ זה החלק החסר
 
                 CreatedAt = DateTime.UtcNow

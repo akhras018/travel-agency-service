@@ -1,10 +1,4 @@
 ﻿@model travel_agency_service.Models.ViewModels.TripDetailsViewModel
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-warning text-center mt-3">
-        @TempData["Error"]
-    </div>
-}
 
 @{
     ViewData["Title"] = "Trip Details";
@@ -29,12 +23,6 @@
     </div>
 </section>
 
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-warning text-center">
-        @TempData["Message"]
-    </div>
-}
 
 <!-- CONTENT -->
 <section class="container my-5">
@@ -531,7 +519,7 @@
         const rt = form.querySelector('input[name="roomTypesJson"]');
         if (rt) rt.value = roomTypesInput.value;
     }
-
+    
     document.addEventListener("DOMContentLoaded", () => {
         renderRoomTypes(); // ✅ מציג מיד בלי לפתוח את הדרופדאון
     });

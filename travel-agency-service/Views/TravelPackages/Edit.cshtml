@@ -7,7 +7,6 @@
 <h2>Edit Travel Package</h2>
 <div class="d-flex justify-content-center gap-2 mb-4">
 
-    <!-- Delete -->
     <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
           onsubmit="return confirm('Are you sure you want to delete this package?');">
         <button type="submit" class="btn btn-danger">
@@ -15,14 +14,12 @@
         </button>
     </form>
 
-    <!-- Waiting List -->
     <a asp-action="WaitingList"
        asp-route-id="@Model.Id"
        class="btn btn-info text-white">
         ⏳ Waiting List
     </a>
 
-    <!-- Hide / Show -->
     <form asp-action="ToggleVisibility"
           asp-route-id="@Model.Id"
           method="post">
@@ -71,7 +68,6 @@
     </div>
 
 
-    <!-- Base Price -->
     <div class="mb-2">
         <label asp-for="BasePrice">Base Price</label>
         <input asp-for="BasePrice" class="form-control" />

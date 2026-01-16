@@ -1,5 +1,116 @@
 ﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ===== NAV ===== */
+.top-nav {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    padding: 25px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .logo img {
+        height: 36px;
+    }
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+    .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.2s ease;
+    }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+.logout-form button {
+    background: none;
+    border: none;
+    color: #ffdddd;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* ===== HERO ===== */
+.hero {
+    height: 100vh;
+    background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/wwwroot/images/abc.png') center / cover no-repeat;
+    color: white;
+    padding: 40px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero h1 {
+    font-size: 60px;
+    font-weight: 700;
+}
+
+.hero p {
+    margin-top: 15px;
+    opacity: 0.9;
+}
+
+.hero-btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 30px;
+    background: black;
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+    .hero-btn:hover {
+        background: #333;
+    }
+
+/* ===== FOOTER ===== */
+.site-footer {
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 20px;
+    text-align: center;
+}
+
+    .site-footer a {
+        color: #cbd5e1;
+        text-decoration: underline;
+    }
 
 a.navbar-brand {
   white-space: normal;

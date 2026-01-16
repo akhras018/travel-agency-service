@@ -18,6 +18,8 @@ namespace travel_agency_service.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string UserId { get; set; } = default!;
         public ApplicationUser User { get; set; } = default!;
+        public string UserName { get; set; } = "";
+
 
     }
 }

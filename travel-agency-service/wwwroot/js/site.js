@@ -128,3 +128,29 @@ function syncRooms(form) {
 }
 
 
+const cardInput = document.getElementById("cardNumber");
+const cardIcon = document.getElementById("cardIcon");
+
+cardInput.addEventListener("input", () => {
+    const value = cardInput.value.replace(/\D/g, "");
+
+    let type = null;
+
+    if (/^4/.test(value)) {
+        type = "visa";
+    } else if (/^(5[1-5]|2[2-7])/.test(value)) {
+        type = "mastercard";
+    } else if (/^(34|37)/.test(value)) {
+        type = "amex";
+    } else if (/^(6011|65)/.test(value)) {
+        type = "discover";
+    }
+
+    if (type) {
+        cardIcon.src = `/images/cards/${type}.png`;
+        cardIcon.style.display = "block";
+    } else {
+        cardIcon.style.display = value.length ? "block" : "none";
+        cardIcon.src = "/images/cards/default.png";
+    }
+});

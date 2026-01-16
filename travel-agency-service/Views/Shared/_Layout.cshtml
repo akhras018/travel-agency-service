@@ -8,6 +8,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ✈️ Travel Agency</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+<link href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -17,7 +19,19 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success text-center m-0">
+            @TempData["Message"]
+        </div>
+    }
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center m-0">
+            @TempData["Error"]
+        </div>
+    }
     <header>
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow">
             <div class="container-fluid">
@@ -174,5 +188,8 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
+
 </body>
+
+
 </html>

@@ -18,9 +18,6 @@ public class CartController : Controller
         _context = context;
     }
 
-    // =========================
-    // GET: Cart
-    // =========================
     public async Task<IActionResult> Index()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -32,7 +29,7 @@ public class CartController : Controller
 
         var model = items.Select(c => new CartItemViewModel
         {
-            Id = c.Id, // ✅ קריטי
+            Id = c.Id,   
 
             PackageId = c.TravelPackageId,
             Destination = c.TravelPackage.Destination,
@@ -54,9 +51,6 @@ public class CartController : Controller
     }
 
 
-    // =========================
-    // POST: Add To Cart
-    // =========================
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
@@ -89,9 +83,6 @@ public class CartController : Controller
     }
 
 
-    // =========================
-    // POST: Remove From Cart
-    // =========================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Remove(int cartItemId)
@@ -109,9 +100,6 @@ public class CartController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-    // =========================
-    // POST: Checkout
-    // =========================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Checkout()
@@ -145,7 +133,6 @@ public class CartController : Controller
         _context.CartItems.RemoveRange(cartItems);
         await _context.SaveChangesAsync();
 
-        // אפשר להעביר למסך תשלום מרכזי
         return RedirectToAction("MyBookings", "Trips");
     }
 

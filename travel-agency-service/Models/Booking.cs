@@ -20,7 +20,7 @@ namespace travel_agency_service.Models
         public bool IsPaid { get; set; } = false;
         public DateTime? PaidAt { get; set; }
         public int Rooms { get; set; }
-        public bool ReminderSent { get; set; }
+        public bool ReminderSent { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
       

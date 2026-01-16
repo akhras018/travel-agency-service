@@ -22,7 +22,6 @@ body {
 }
 
 
-/* Video background for Home */
 .video-background {
     position: fixed;
     top: 0;
@@ -39,7 +38,6 @@ body {
         object-fit: cover;
     }
 
-/* Content above video */
 .home-content {
     position: relative;
     z-index: 1;
@@ -48,13 +46,12 @@ body {
 
 .home-divider {
     border: none;
-    height: 3px; /* עובי הקו */
-    background-color: #000; /* שחור חזק */
+    height: 3px;    
+    background-color: #000;    
     opacity: 1;
 }
-/* Feature cards on Home */
 .feature-card {
-    background: rgba(255, 255, 255, 0.85); /* מלבן בהיר */
+    background: rgba(255, 255, 255, 0.85);    
     border-radius: 12px;
     padding: 30px 20px;
     height: 100%;
@@ -62,20 +59,18 @@ body {
     cursor: pointer;
 }
 
-    /* Hover effect */
     .feature-card:hover {
-        transform: translateY(-12px); /* זז למעלה */
+        transform: translateY(-12px);    
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
     }
 
-    /* Text styling */
     .feature-card h5 {
         margin-bottom: 15px;
     }
 
     .feature-card p {
         margin: 0;
-        color: #000; /* שחור חזק */
+        color: #000;    
     }
 
     .feature-card:hover {
@@ -84,7 +79,7 @@ body {
 
 .footer {
     position: fixed;
-    bottom: 20px; /* מרחק מהקצה התחתון */
+    bottom: 20px;     
     left: 0;
     width: 100%;
     text-align: center;
@@ -115,7 +110,6 @@ body {
     direction: ltr;
     color: white;
 }
-/* שכבת כהות */
 .hero-overlay {
     position: absolute;
     inset: 0;
@@ -123,7 +117,6 @@ body {
     z-index: 1;
 }
 
-/* תוכן מעל התמונה */
 .hero-inner {
     position: relative;
     z-index: 2;
@@ -147,7 +140,6 @@ body {
 .trip-search-box select {
     height: 48px;
 }
-/* Switch */
 .discount-check {
     display: flex;
     align-items: center;
@@ -161,13 +153,11 @@ body {
 
 
 
-/* כפתור חיפוש */
 .search-btn {
     height: 48px;
     font-weight: 600;
 }
 
-/* 📱 מובייל */
 @media (max-width: 992px) {
     .hero-inner {
         padding: 80px 20px 220px 20px;
@@ -179,8 +169,6 @@ body {
         grid-template-columns: 1fr;
     }
 }
-
-/* ===== Deals Section ===== */
 
 .deals-section {
     position: relative;
@@ -202,9 +190,9 @@ body {
     align-items: center;
     gap: 12px;
     width: 100%;
-    direction: ltr; /* ⬅️ קובע כיוון */
+    direction: ltr;     
 
-    justify-content: flex-start; /* RTL */
+    justify-content: flex-start;   
 }
 
 .deals-viewport {
@@ -233,7 +221,6 @@ body {
     background: linear-gradient( to left, rgba(255,255,255,1), rgba(255,255,255,0) );
 }
 
-/* הסתרה ע״י JS */
 .hide-left-fade .deals-fade-left {
     display: none;
 }
@@ -245,11 +232,10 @@ body {
 
 
 
-/* קרוסלה */
 .deals-wrapper {
     display: flex;
     gap: 16px;
-    overflow-x: auto; /* ✅ חובה */
+    overflow-x: auto;    
     overflow-y: hidden;
     scroll-behavior: smooth;
     width: 100%;
@@ -258,8 +244,6 @@ body {
     .popular-wrapper::-webkit-scrollbar {
         display: none;
     }
-/* כרטיס */
-
 .deal-card {
     width: 320px;
     flex-shrink: 0;
@@ -282,7 +266,7 @@ body {
     }
 
     .deal-card:hover img {
-        transform: scale(1.08); /* 🔍 zoom */
+        transform: scale(1.08);    
     }
 
 .deal-image {
@@ -299,23 +283,22 @@ body {
     }
 
 
-/* טקסט */
 .deal-info {
     padding: 10px 12px;
     text-align: left;
-    direction: ltr; /* ⬅️ מונע היפוך */
+    direction: ltr;     
 }
 
     .deal-info h5 {
         margin: 0;
-        font-size: 18px; /* היה 16 */
+        font-size: 18px;    
         font-weight: 600;
     }
 
     .deal-info span {
         display: block;
         margin-top: 4px;
-        font-size: 15px; /* היה 14 */
+        font-size: 15px;    
         color: #555;
     }
 
@@ -354,8 +337,6 @@ body {
         right: -20px;
     }
 
-/* ===== Popular Section ===== */
-
 .popular-section {
     position: relative;
     padding: 40px 60px;
@@ -383,7 +364,6 @@ body {
     width: 100%;
 }
 
-/* חצים */
 .popular-arrow {
     position: absolute;
     top: 40%;
@@ -427,7 +407,7 @@ body {
 .category-tabs {
     display: flex;
     gap: 12px;
-    margin-bottom: 24px; /* 🔥 זה הרווח */
+    margin-bottom: 24px;     
 }
 
     .category-tabs button {
@@ -444,9 +424,6 @@ body {
             background: #0d6efd;
             color: white;
         }
-/* ===== Search Bar Compact ===== */
-/* ===== Search Bar Layout ===== */
-
 
 .trip-search-box .form-control,
 .trip-search-box .form-select {
@@ -462,34 +439,26 @@ body {
 }
 
 .trip-search-box select.form-select {
-    padding-right: 30px; /* ← הטקסט זז שמאלה */
-    padding-left: 50px; /* ← משאיר מקום לחץ */
+    padding-right: 30px;      
+    padding-left: 50px;      
 }
-
-/* ===== Fix select arrow overlap in RTL ===== */
-/* ===== FORCE fix select arrow overlap (Bootstrap RTL) ===== */
 
 .form-select {
     background-position-x: left !important;
 }
-/* ===============================
-   Search Bar – FINAL RTL FIX
-   =============================== */
-
 .trip-search-box {
     position: absolute;
     bottom: 30px;
-    /*right: 80px;*/
     left: 80px;
     z-index: 3;
     display: grid;
-    grid-template-columns: 1.2fr /* יעד */
-    1fr /* תאריך התחלה */
-    1fr /* תאריך סיום */
-    0.9fr /* מחיר מינימום */
-    0.9fr /* מחיר מקסימום */
-    1fr /* קטגוריה */
-    auto; /* חיפוש */
+    grid-template-columns: 1.2fr   
+    1fr    
+    1fr    
+    0.9fr    
+    0.9fr    
+    1fr   
+    auto;   
 
     gap: 8px;
     align-items: center;
@@ -503,18 +472,14 @@ body {
         font-size: 0.9rem;
     }
 
-    /* 🔥 FIX SELECT ARROW RTL */
-
-    /* כפתור חיפוש */
     .trip-search-box .search-btn {
         height: 42px;
         padding: 0 20px;
         white-space: nowrap;
     }
-/* סיכום חיפוש – מיקום נכון ב-Hero */
 .search-summary {
     position: absolute;
-    bottom: 110px; /* ⬅️ מעל שורת החיפוש */
+    bottom: 110px;      
     right: 80px;
     display: flex;
     gap: 18px;
@@ -530,8 +495,6 @@ body {
 }
 
 
-/* ===== Search Summary – Card Style ===== */
-
 .search-summary-box {
     position: absolute;
     bottom: 120px;
@@ -545,7 +508,6 @@ body {
     z-index: 4;
 }
 
-/* כותרת */
 .search-summary-header {
     font-size: 18px;
     font-weight: 700;
@@ -555,7 +517,6 @@ body {
     padding-bottom: 8px;
 }
 
-/* שורה */
 .search-summary-item {
     display: flex;
     align-items: center;
@@ -577,7 +538,6 @@ body {
         font-weight: 600;
     }
 
-/* מובייל */
 @media (max-width: 768px) {
     .search-summary-box {
         right: 20px;
@@ -651,22 +611,17 @@ body {
     object-fit: cover;
     min-height: 220px;
 }
-/* ===============================
-   GLOBAL LTR OVERRIDE (FINAL)
-   =============================== */
-
 html, body {
     direction: ltr;
     text-align: left;
 }
 
 .site-reviews-scroll {
-    max-height: 320px; /* בערך 5 תגובות */
+    max-height: 320px;     
     overflow-y: auto;
     padding-right: 6px;
 }
 
-    /* scrollbar יפה (Chrome / Edge) */
     .site-reviews-scroll::-webkit-scrollbar {
         width: 6px;
     }
@@ -679,10 +634,8 @@ html, body {
         .site-reviews-scroll::-webkit-scrollbar-thumb:hover {
             background-color: #adb5bd;
         }
-/* Rectangular Add to Cart – same as Package Details */
-
 .btn-add-cart-rect {
-    border-radius: 6px; /* מלבן, לא עיגול */
+    border-radius: 6px;     
     font-weight: 600;
     padding: 8px 12px;
     transition: all 0.2s ease;
@@ -693,7 +646,6 @@ html, body {
         color: #fff;
         border-color: #0d6efd;
     }
-/* הקישור של העגלה */
 .cart-link {
     display: flex;
     align-items: center;
@@ -701,14 +653,12 @@ html, body {
     padding: 0.5rem;
 }
 
-/* תמונת העגלה */
 .cart-img {
-    width: 28px; /* 🔴 קובע גודל קבוע */
+    width: 28px;      
     height: 28px;
     object-fit: contain;
 }
 
-/* הבועה האדומה */
 .cart-badge {
     position: absolute;
     bottom: -6 px;
@@ -726,10 +676,6 @@ html, body {
     font-weight: bold;
 }
 
-/* ===============================
-   Admin Package Card – REAL FIX
-   =============================== */
-
 .admin-package-card {
     transition: transform 0.35s ease, box-shadow 0.35s ease;
     cursor: pointer;
@@ -740,7 +686,6 @@ html, body {
         box-shadow: 0 22px 50px rgba(0, 0, 0, 0.35);
     }
 
-    /* zoom עדין לתמונה */
     .admin-package-card img {
         transition: transform 0.4s ease;
     }
@@ -799,10 +744,6 @@ html, body {
 
 
 
-/* =================================
-   ADMIN NAVBAR – DARK CONTROL STYLE
-   ================================= */
-
 .admin-page .navbar {
     background: linear-gradient( 135deg, #020617, #020617, #0f172a );
     border-bottom: 1px solid rgba(148,163,184,0.15);
@@ -810,7 +751,6 @@ html, body {
     padding: 14px 26px;
 }
 
-/* ADMIN logo */
 .admin-page .navbar-brand {
     font-size: 21px;
     font-weight: 800;
@@ -819,7 +759,6 @@ html, body {
     text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
-/* Admin buttons */
 .admin-page .navbar-nav .nav-link {
     color: #cbd5f5 !important;
     font-weight: 600;
@@ -828,21 +767,18 @@ html, body {
     transition: all 0.25s ease;
 }
 
-    /* Hover – glow */
     .admin-page .navbar-nav .nav-link:hover {
         background: rgba(59,130,246,0.15);
         color: #ffffff !important;
         box-shadow: inset 0 0 0 1px rgba(59,130,246,0.35);
     }
 
-    /* Active button */
     .admin-page .navbar-nav .nav-link.active {
         background: rgba(59,130,246,0.25);
         color: #ffffff !important;
         box-shadow: 0 0 0 1px rgba(59,130,246,0.4), 0 0 18px rgba(59,130,246,0.35);
     }
 
-/* Logout – danger style */
 .admin-page .navbar .btn-link {
     color: #f87171 !important;
     font-weight: 700;
@@ -858,7 +794,6 @@ html, body {
     }
 
 
-    /* ===== ADMIN NAVBAR ===== */
 .admin-navbar {
     background: linear-gradient(
         135deg,
@@ -879,7 +814,6 @@ html, body {
 
 
 
-/* ===== ADMIN NAVBAR (FORCED) ===== */
 .admin-navbar {
     background: linear-gradient(90deg, #0f172a, #1e40af) !important;
     border-bottom: 2px solid rgba(255,255,255,0.15);
@@ -891,16 +825,10 @@ html, body {
 
 
 
-    /* ===============================
-   ADMIN TOP NAV BUTTONS
-   =============================== */
-
-    /* רווח בין כפתורים */
     .admin-navbar .nav-item {
         margin-left: 10px;
     }
 
-    /* כפתור רגיל (Users) */
     .admin-navbar .nav-link {
         padding: 8px 16px;
         border-radius: 8px;
@@ -909,13 +837,11 @@ html, body {
         color: #e5e7eb !important;
     }
 
-        /* hover לכפתור Users */
         .admin-navbar .nav-link:hover {
             background: rgba(255, 255, 255, 0.15);
             color: #ffffff !important;
         }
 
-    /* כפתור Logout – בולט ומסוכן */
     .admin-navbar .btn-link.text-danger {
         background: rgba(220, 53, 69, 0.15);
         border-radius: 8px;
@@ -924,7 +850,6 @@ html, body {
         color: #f87171 !important;
     }
 
-        /* hover ל-Logout */
         .admin-navbar .btn-link.text-danger:hover {
             background: #dc3545;
             color: #ffffff !important;
@@ -935,44 +860,41 @@ html, body {
     gap: 24px;
     justify-content: center;
 }
-/* הכרטיס עצמו */
 .trip-card {
     width: 320px;
     border-radius: 18px;
     overflow: hidden;
     background: #fff;
     box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-    min-height: 520px; /* 🔑 אורך הכרטיס */
+    min-height: 520px;     
 
-    display: flex; /* 🔑 חובה */
-    flex-direction: column; /* 🔑 חובה */
+    display: flex;    
+    flex-direction: column;    
 }
 
-/* אזור התמונה */
 .trip-image {
     position: relative;
-    height: 220px; /* 🔑 הגובה הקבוע */
-    overflow: hidden; /* 🔑 חיתוך */
+    height: 220px;     
+    overflow: hidden;    
 }
 
-    /* התמונה עצמה */
     .trip-image img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* 🔑 לא נמתח, נחתך יפה */
+        object-fit: cover;       
         display: block;
     }
 .trip-info {
     display: flex;
-    gap: 16px; /* 🔑 הרווח בין גיל לתאריך */
+    gap: 16px;       
     font-size: 14px;
     color: #444;
     margin: 8px 0;
 }
 .old-price {
-    font-size: 22px; /* 🔼 היה 14px */
+    font-size: 22px;     
     color: #9ca3af;
-    text-decoration: line-through; /* ❌ קו חוצה */
+    text-decoration: line-through;     
     margin-left: 10px;
 }
 .trip-price {
@@ -982,7 +904,7 @@ html, body {
     margin: 16px 0;
 }
 .trip-actions {
-    margin-top: auto;         /* 🔑 הקסם */
+    margin-top: auto;            
     display: flex;
     gap: 12px;
 }
@@ -998,19 +920,17 @@ html, body {
         transition: all .25s ease;
     }
 
-/* כפתור ראשי */
 .btn-primary {
-    background: #0d6efd; /* כחול Bootstrap */
+    background: #0d6efd;    
     color: #fff;
     border: none;
 }
 
     .btn-primary:hover {
-        background: #0b5ed7; /* כחול כהה יותר */
+        background: #0b5ed7;     
     }
 
 
-/* כפתור משני */
 .btn-outline {
     border: 1.5px solid #0d6efd;
     color: #0d6efd;
@@ -1030,7 +950,7 @@ html, body {
 }
 
 .new-price {
-    font-size: 26px; /* 🔥 גדול יותר */
+    font-size: 26px;     
     font-weight: 900;
     color: #2563eb;
     line-height: 1;
@@ -1039,12 +959,11 @@ html, body {
     transition: all 0.25s ease;
 
 }
-/* תג קטגוריה */
 .badge.category {
     position: absolute;
     top: 12px;
-    left: 12px; /* 🔑 שמאל עליון */
-    background: #0d6efd; /* 🔵 כחול */
+    left: 12px;     
+    background: #0d6efd;    
     color: #fff;
     padding: 6px 14px;
     font-size: 12px;
@@ -1053,11 +972,10 @@ html, body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-/* דירוג על התמונה */
 .rating-badge {
     position: absolute;
-    bottom: 12px; /* 🔑 תחתית */
-    right: 12px; /* 🔑 צד ימין */
+    bottom: 12px;    
+    right: 12px;     
     background: #ffffff;
     padding: 6px 10px;
     border-radius: 16px;
@@ -1069,37 +987,33 @@ html, body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-    /* כוכב */
     .rating-badge .star {
-        color: #facc15; /* ⭐ צהוב */
+        color: #facc15;    
         font-size: 14px;
     }
 
-    /* מספר */
     .rating-badge .rating-value {
         color: #111827;
     }
-/* Hot Deals – prices side by side */
 .deal-price {
     display: flex;
     align-items: center;
-    gap: 8px; /* רווח בין המחירים */
+    gap: 8px;     
 }
-/* Navbar Logo */
 .navbar-logo {
-    height: 42px; /* ⬅️ לוגו גדול וברור */
+    height: 42px;      
     width: auto;
 }
 
 .navbar-logo-text {
     font-weight: 700;
     font-size: 1.1rem;
-    color: #0d6efd; /* כחול Bootstrap */
+    color: white;    
     text-decoration: none;
 }
 @media print {
     .navbar-logo {
-        height: 60px !important; /* ⬅️ לוגו גדול ב-PDF */
+        height: 60px !important;      
     }
 
     .navbar-logo-text {
@@ -1107,30 +1021,28 @@ html, body {
         font-weight: 800;
     }
 }
-/* Paid / Unpaid – size exactly to text */
 .payment-status {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 6px; /* ✔️ מדויק */
+    padding: 2px 6px;    
     font-size: 0.8rem;
     font-weight: 600;
     border-radius: 5px;
     line-height: 1;
     white-space: nowrap;
     width: fit-content;
-    align-self: flex-start; /* 🔥 זה הפיקס האמיתי */
+    align-self: flex-start;      
 }
 
 
-    /* צבעים */
     .payment-status.paid {
-        background-color: #198754; /* green */
+        background-color: #198754;   
         color: white;
     }
 
     .payment-status.unpaid {
-        background-color: #ffc107; /* warning */
+        background-color: #ffc107;   
         color: #212529;
     }
 .hotel-details {
@@ -1142,3 +1054,17 @@ html, body {
     .hotel-details ul {
         margin-bottom: 0;
     }
+.login-hero {
+    height: 100vh;
+    background: linear-gradient( rgba(0,0,0,0.45), rgba(0,0,0,0.45) ), url('/images/abc.png') center / cover no-repeat;
+    position: relative;
+}
+
+/* מיקום הכרטיס על התמונה */
+.login-card-wrapper {
+    position: absolute;
+    top: 50%;
+    right: 80px;
+    transform: translateY(-50%);
+    width: 380px;
+}

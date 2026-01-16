@@ -35,6 +35,7 @@ namespace travel_agency_service.Controllers
         bool? visibleOnly)
         {
             IQueryable<TravelPackage> query = _context.TravelPackages;
+            await SendTripRemindersIfNeeded();
 
             // 🔍 Search (Destination / Country)
             if (!string.IsNullOrWhiteSpace(search))
@@ -143,6 +144,53 @@ namespace travel_agency_service.Controllers
             return "/uploads/" + fileName;
         }
 
+        private async Task SendTripRemindersIfNeeded()
+        {
+            var today = DateTime.Today;
+            var reminderDate = today.AddDays(5);
+
+            var bookingsToRemind = await _context.Bookings
+                .Include(b => b.User)
+                .Include(b => b.TravelPackage)
+                .Where(b =>
+                    !b.ReminderSent &&
+                    b.IsPaid &&
+                    b.TravelPackage.StartDate.Date == reminderDate)
+                .ToListAsync();
+
+            foreach (var booking in bookingsToRemind)
+            {
+                await _emailSender.SendEmailAsync(
+                    booking.User.Email,
+                    "Trip Reminder – 5 days to go ✈️",
+                    BuildReminderEmail(booking)
+                );
+
+                booking.ReminderSent = true;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        private string BuildReminderEmail(Booking booking)
+        {
+            return $@"
+    <h2>⏰ Trip Reminder</h2>
+                    Hello <strong>{booking.User.FirstName} {booking.User.LastName}</strong>
+
+    <p>This is a reminder that your trip to 
+    <strong>{booking.TravelPackage.Destination}</strong>
+    starts in <strong>5 days</strong>.</p>
+
+    <ul>
+        <li><b>Start date:</b> {booking.TravelPackage.StartDate:dd/MM/yyyy}</li>
+        <li><b>End date:</b> {booking.TravelPackage.EndDate:dd/MM/yyyy}</li>
+        <li><b>Booking ID:</b> {booking.Id}</li>
+    </ul>
+
+    <p>We wish you a wonderful trip ✈️🌍</p>
+    <p><b>Travel Agency Service</b></p>
+    ";
+        }
 
 
         // GET: TravelPackages/Edit/5

@@ -29,27 +29,7 @@ namespace travel_agency_service.Services
                 .Include(b => b.User)
                 .ToListAsync();
 
-            foreach (var booking in bookings)
-            {
-                var package = booking.TravelPackage;
-                if (package == null)
-                    continue;
-
-                int daysBeforeTrip =
-                    (package.StartDate.Date - today).Days;
-
-                // ⏰ RULE: 5 days before trip
-                if (daysBeforeTrip == 5)
-                {
-                    await _emailSender.SendEmailAsync(
-                        booking.User.Email,
-                        "Upcoming Trip Reminder ✈️",
-                        $"Dear {booking.User.UserName},<br/><br/>" +
-                        $"This is a reminder that your trip to <b>{package.Destination}</b> " +
-                        $"starts in 5 days.<br/><br/>Safe travels!"
-                    );
-                }
-            }
+           
         }
     }
 }

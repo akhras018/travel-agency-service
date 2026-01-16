@@ -1,99 +1,220 @@
 ﻿@{
+    Layout = null;
     ViewData["Title"] = "Home";
 }
-<!-- Video Background -->
-<div class="video-background">
-    <video autoplay muted loop playsinline>
-        <source src="~/videos/3572188-hd_1920_1080_30fps.mp4" type="video/mp4" />
-    </video>
-</div>
+@model travel_agency_service.Models.ViewModels.HomePageViewModel
+
+<head>
+   
+    <link rel="stylesheet" href="~/css/style.css" />
+    <link href="https://unpkg.com/boxicons@latest/css/boxicons.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/travel_agency_service.styles.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<section class="hero">
+    <nav class="hero-nav">
+        <div class="site-logo">
+            <img src="~/images/logo2.png" alt="Travel Agency Logo" />
+        </div>
 
 
-<div class="container mt-5 home-content">
-    <div class="row justify-content-center text-center">
-        <div class="col-lg-8">
+        <ul class="nav-links">
+            
+            <li class="nav-item">
+                <a class="nav-link"
+                   href="#about">
+                    About Us
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link "
+                   asp-controller="Trips"
+                   asp-action="Gallery">
+                    Gallery
+                </a>
+            </li>
 
-            <h1 class="display-4 fw-bold mb-3">
-                ✈️ Welcome to Travel Agency
-            </h1>
-
-            <p class="lead mb-4 text-black">
-                Plan, book, and manage your trips easily.<br />
-                Our system allows customers to browse travel packages,
-                register securely, and manage their bookings online.
-            </p>
-
-            @if (!User.Identity!.IsAuthenticated)
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                <!-- User not logged in -->
-                <div class="d-flex justify-content-center gap-3 mt-4 ">
-                    <a asp-area="Identity"
-                       asp-page="/Account/Register"
-                       class="btn btn-primary btn-lg px-4">
-                        Register
-                    </a>
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <!-- 👤 USER MENU -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            My Account
+                        </a>
 
-                    <a asp-area="Identity"
-                       asp-page="/Account/Login"
-                       class="btn btn-outline-primary btn-lg px-4">
-                        Login
-                    </a>
-                </div>
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-area="Identity"
+                                   asp-page="/Account/Manage/Index">
+                                    👤 Personal Info
+                                </a>
+                            </li>
+
+
+
+                            <li><hr class="dropdown-divider" /></li>
+
+                            <li>
+                                <form asp-area="Identity"
+                                      asp-page="/Account/Logout"
+                                      method="post">
+                                    <button class="dropdown-item text-danger">
+                                        🚪 Logout
+                                    </button>
+                                </form>
+                            </li>
+
+                        </ul>
+                    </li>
+                }
+
+                <!-- 👤 USER -->
+                if (!User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link "
+                           asp-controller="Trips"
+                           asp-action="MyBookings">
+                            My Bookings
+                        </a>
+                    </li>
+
+                    <li class="nav-item me-3">
+                        @await Component.InvokeAsync("CartSummary")
+                    </li>
+                }
+
+                <!-- 🛠 ADMIN -->
+                if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link "
+                           asp-controller="Admin"
+                           asp-action="Index">
+                            Dashboard
+                        </a>
+                    </li>
+                }
+
+                <!-- Logout -->
+                <li class="nav-item">
+                    <form asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          method="post"
+                          class="d-inline">
+                        <button class="btn btn-link nav-link text-danger">
+                            Logout
+                        </button>
+                    </form>
+                </li>
             }
             else
             {
-                <!-- User logged in -->
-                <div class="d-flex justify-content-center gap-3 mt-4">
-                    <a asp-controller="Trips"
-                       asp-action="Gallery"
-                       class="btn btn-success btn-lg px-4">
-                        Browse Trips
+                <!-- 🔐 לא מחובר -->
+                <li class="nav-item">
+                    <a class="nav-link "
+                       asp-area="Identity"
+                       asp-page="/Account/Login">
+                        Login
                     </a>
+                </li>
 
-
-                    <a asp-controller="Trips"
-                       asp-action="MyBookings"
-                       class="btn btn-outline-secondary btn-lg px-4">
-                        My Bookings
+                <li class="nav-item">
+                    <a class="nav-link "
+                       asp-area="Identity"
+                       asp-page="/Account/Register">
+                        Sign Up
                     </a>
-
-
-                </div>
+                </li>
             }
 
+        </ul>
+    </nav>
+    <div class="hero-content">
+        <h1>Make in<br />your journey.</h1> <p>Explore the world with what you love beautiful natural beauty.</p>
+    </div>
+    <div class="hero-stats">
+        <div class="stat-item">
+            <span class="stat-number">✈️ @Model.TripsCount</span>
+            <span class="stat-label">Trips Available</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-item">
+            <span class="stat-number">🌍 @Model.DestinationsCount</span>
+            <span class="stat-label">Destinations</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-item">
+            <span class="stat-number">😊 @Model.BookingsCount+</span>
+            <span class="stat-label">Happy Travelers</span>
         </div>
     </div>
 
-    <hr class="my-5 home-divider" />
+</section>
+<section id="about" class="about-section">
+    <div class="about-container vertical">
 
-    <!-- Info section -->
-    <div class="row text-center text-black">
-        <div class="col-md-4 mb-4">
-            <div class="feature-card">
-                <h5 class="fw-bold">🌍 Travel Packages</h5>
-                <p>
-                    Browse a variety of destinations and travel offers.
-                </p>
-            </div>
-        </div>
+        <h2>About Us</h2>
 
-        <div class="col-md-4 mb-4">
-            <div class="feature-card">
-                <h5 class="fw-bold">🔐 Secure System</h5>
-                <p>
-                    Registration and login are protected using secure authentication.
-                </p>
-            </div>
-        </div>
+        <p>
+            We are a professional travel agency committed to creating meaningful
+            and unforgettable travel experiences around the world. Our goal is
+            not just to offer trips, but to design journeys that are carefully
+            planned, personalized, and tailored to each traveler’s needs and dreams.
+            With a deep passion for exploration and years of experience in the
+            travel industry, we specialize in providing high-quality vacation
+            packages that combine comfort, adventure, and value.
+            Your journey begins with us — and we make sure it’s one worth remembering.
+        </p>
 
-        <div class="col-md-4 mb-4">
-            <div class="feature-card">
-                <h5 class="fw-bold">📅 Easy Management</h5>
-                <p>
-                    Manage bookings, payments, and notifications easily.
-                </p>
-            </div>
-        </div>
+     
+
     </div>
+</section>
 
-</div>
+<section id="reviews" class="reviews-section">
+    <h2>What Our Clients Say</h2>
+
+    <div class="reviews">
+        @if (Model.SiteReviews.Any())
+        {
+            foreach (var review in Model.SiteReviews)
+            {
+                <div class="review-card">
+                    <p>"@review.Comment"</p>
+                    <strong>
+                       
+                        @{
+                            var displayName =
+                            !string.IsNullOrWhiteSpace(review.User?.FirstName)
+                            ? $"{review.User.FirstName} {review.User.LastName}".Trim()
+                            : review.UserEmail;
+                        }
+
+                        <strong> @displayName</strong>
+
+            </strong>
+        </div>
+                }
+        }
+        else
+        {
+            <p class="text-muted text-center">No reviews yet.</p>
+        }
+    </div>
+</section>

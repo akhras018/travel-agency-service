@@ -1,0 +1,173 @@
+﻿.hero {
+    height: 100vh;
+    background: linear-gradient( rgba(0,0,0,0.35), rgba(0,0,0,0.35) ), url('/images/abc.png') center/cover no-repeat;
+    color: white;
+    padding: 40px 80px;
+}
+
+.hero-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .hero-nav .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+    .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .nav-links a.active {
+            border-bottom: 2px solid white;
+        }
+
+.hero-content {
+    max-width: 600px;
+    margin-top: 140px;
+}
+
+    .hero-content h1 {
+        font-size: 64px;
+        line-height: 1.1;
+        margin-bottom: 20px;
+    }
+
+.hero-search {
+    display: flex;
+    background: white;
+    border-radius: 50px;
+    overflow: hidden;
+    margin: 30px 0;
+}
+
+    .hero-search select {
+        border: none;
+        padding: 15px 20px;
+        outline: none;
+    }
+
+    .hero-search button {
+        background: black;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        cursor: pointer;
+    }
+.about-section {
+    padding: 100px 80px;
+    background: #f9f9f9;
+}
+
+.about-container {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+
+.about-text h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+.reviews-section {
+    padding: 100px 80px;
+    text-align: center;
+}
+
+.reviews {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.review-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 300px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.site-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.site-logo img {
+    height: 120px;          /* גובה מושלם ל-navbar */
+    width: auto;
+    display: block;
+}
+.about-section {
+    padding: 120px 80px;
+    background: #ffffff;
+}
+
+.about-container.vertical {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center; /* מרכז את הטקסט */
+    display: flex;
+    flex-direction: column; /* ⬅️ זה העיקר */
+}
+
+    .about-container.vertical h2 {
+        font-size: 42px;
+        margin-bottom: 40px;
+        font-weight: 700;
+    }
+
+    .about-container.vertical p {
+        font-size: 18px;
+        line-height: 1.9;
+        color: #444;
+        margin-bottom: 24px; /* רווח בין פסקאות */
+    }
+.hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    background: #fff;
+    padding: 18px 30px;
+    border-radius: 50px;
+    margin-top: 30px;
+    width: fit-content;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.stat-item {
+    text-align: center;
+    min-width: 120px;
+}
+
+.stat-number {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #666;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 35px;
+    background: #ddd;
+}

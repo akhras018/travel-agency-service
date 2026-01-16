@@ -33,7 +33,6 @@ namespace travel_agency_service.Pdf
                 {
                     container.Row(row =>
                     {
-                        // טקסט משמאל
                         row.RelativeItem().Column(col =>
                         {
                             col.Item().Text("Travel Agency Service")
@@ -45,11 +44,10 @@ namespace travel_agency_service.Pdf
                                 .FontColor(Colors.Grey.Darken1);
                         });
 
-                        // תמונה מימין
                         row.ConstantItem(150)
                             .AlignRight()
                             .AlignMiddle()
-                            .Height(90)                // ⬅️ גובה הלוגו
+                            .Height(90)                   
                             .Image(_logo, ImageScaling.FitArea);
                     });
                 });
@@ -75,7 +73,7 @@ namespace travel_agency_service.Pdf
                 });
 
                 row.ConstantItem(100).AlignRight().Height(60)
-                    .Placeholder(); // 🔵 כאן תוכל לשים לוגו בהמשך
+                    .Placeholder();       
             });
         }
 

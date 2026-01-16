@@ -72,9 +72,15 @@
 
     <!-- ================= RESULTS ================= -->
     <section class="container-fluid my-5">
-      
 
-                <h3 class=" mb-4">Search Results</h3>
+
+        <h3 class="mb-2">
+            Search Results
+        </h3>
+
+        <p class="text-muted mb-4">
+            Found <strong>@Model.Count()</strong> trips matching your search
+        </p>
 
                 @if (!Model.Any())
                 {

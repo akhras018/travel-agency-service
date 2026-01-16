@@ -1,102 +1,52 @@
-﻿@{
+﻿@model travel_agency_service.Models.ViewModels.PayViewModel
+
+@{
+    ViewData["Title"] = "Payment";
+}
+@{
     ViewData["Title"] = "Payment";
 }
 
 <div class="container mt-5" style="max-width:480px">
-    <form asp-controller="Trips"
-          asp-action="ConfirmPayment"
-          method="post">
+    <h4 class="mb-3 text-center">
+        Total to pay: ₪@Model.TotalPrice
+    </h4>
 
+    <div id="payment-element"></div>
 
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="bookingId" value="@ViewBag.BookingId" />
+    <button id="payBtn" class="btn btn-success w-100 mt-3">
+        Pay Now
+    </button>
 
-        <!-- Card Holder -->
-        <div class="mb-3">
-            <label class="form-label">ת.ז / שם בעל הכרטיס</label>
-            <input type="text"
-                   name="cardHolderName"
-                   class="form-control"
-                   autocomplete="off"
-                   required />
-        </div>
-
-        <!-- Card Number -->
-        <div class="mb-3">
-            <label class="form-label">מספר כרטיס אשראי</label>
-            <input type="text"
-                   name="cardNumber"
-                   class="form-control"
-                   inputmode="numeric"
-                   maxlength="16"
-                   placeholder="XXXX XXXX XXXX XXXX"
-                   autocomplete="off"
-                   required />
-        </div>
-
-        <!-- Expiration -->
-        <div class="row mb-3">
-            <div class="col-6">
-                <label class="form-label">חודש</label>
-                <select name="expMonth" class="form-select" autocomplete="off" required>
-                    <option value="" selected disabled>בחר</option>
-                    @for (int i = 1; i <= 12; i++)
-                    {
-                        <option value="@i">@i.ToString("D2")</option>
-                    }
-                </select>
-            </div>
-
-            <div class="col-6">
-                <label class="form-label">שנה</label>
-                <select name="expYear" class="form-select" autocomplete="off" required>
-                    <option value="" selected disabled>בחר</option>
-                    @for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 10; y++)
-                    {
-                        <option value="@y">@y</option>
-                    }
-                </select>
-            </div>
-        </div>
-
-        <!-- CVV -->
-        <div class="mb-4">
-            <label class="form-label">קוד אבטחה (CVV)</label>
-            <input type="password"
-                   name="cvv"
-                   class="form-control"
-                   maxlength="3"
-                   placeholder="3 ספרות בגב הכרטיס"
-                   autocomplete="off"
-                   required />
-        </div>
-
-        <!-- Buttons -->
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-success btn-lg">
-                Proceed to Payment
-            </button>
-
-            <form asp-action="CancelPayment" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="bookingId" value="@ViewBag.BookingId" />
-                <button type="button"
-                        class="btn btn-outline-secondary w-100 mt-2"
-                        onclick="location.href='@Url.Action("CancelPendingBooking", "Trips", new { bookingId = ViewBag.BookingId })'">
-                    Cancel Payment
-                </button>
-
-
-
-            </form>
-
-        </div>
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger text-center">
-                @TempData["Error"]
-            </div>
-        }
-
-    </form>
+    <a class="btn btn-outline-secondary w-100 mt-2"
+       href="@Url.Action("CancelPendingBooking", "Trips", new { bookingId = Model.BookingId })">
+        Cancel Payment
+    </a>
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+    const stripe = Stripe("@Model.PublishableKey");
+
+    const elements = stripe.elements({
+        clientSecret: "@Model.ClientSecret"
+    });
+
+    const paymentElement = elements.create("payment");
+    paymentElement.mount("#payment-element");
+
+    document.getElementById("payBtn").onclick = async () => {
+        const { error } = await stripe.confirmPayment({
+            elements,
+               confirmParams: {
+        return_url: "@Model.ReturnUrl"
+    }
+
+        });
+
+        if (error) {
+            alert(error.message);
+        }
+    };
+</script>

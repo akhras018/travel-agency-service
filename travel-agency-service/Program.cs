@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using travel_agency_service.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
-
+using Stripe;
 QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -59,6 +59,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
 var app = builder.Build();
 
 // Seed roles & admins
@@ -90,7 +92,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Trips}/{action=Gallery}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 
