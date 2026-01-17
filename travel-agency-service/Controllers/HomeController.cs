@@ -23,7 +23,6 @@ namespace travel_agency_service.Controllers
 
         public IActionResult Index()
         {
-            // 🔐 אם מחובר – ניתוב לפי תפקיד
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 if (User.IsInRole("Admin"))
@@ -31,7 +30,6 @@ namespace travel_agency_service.Controllers
                     return RedirectToAction("Index", "Admin");
                 }
 
-                // משתמש רגיל
                 return RedirectToAction("Gallery", "Trips");
             }
             var model = new HomePageViewModel

@@ -9,7 +9,6 @@
     var canCancel = !cancellationDeadline.HasValue || DateTime.UtcNow <= cancellationDeadline.Value;
 }
 
-<!-- HERO -->
 <section class="trips-hero trips-hero--small"
          style="background-image:url('/images/pexels-pixabay-237272.jpg')">
     <div class="hero-overlay"></div>
@@ -24,14 +23,11 @@
 </section>
 
 
-<!-- CONTENT -->
 <section class="container my-5">
     <div class="row g-5">
 
-        <!-- Right side -->
         <div class="col-lg-8">
 
-            <!-- Gallery -->
             @if (Model.GalleryImages.Any())
             {
                 <div class="row g-3 mb-4">
@@ -47,7 +43,6 @@
                 </div>
             }
 
-            <!-- Description -->
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5 class="mb-3">Package Description</h5>
@@ -77,7 +72,6 @@
 
                     <hr />
 
-                    <!-- Important Dates -->
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <strong>Latest booking date:</strong><br />
@@ -145,14 +139,12 @@
             </div>
         </div>
 
-        <!-- Left side – Booking -->
         <div class="col-lg-4">
             <div class="card shadow-lg">
                 <div class="card-body">
 
                     <h5 class="mb-3">Package Booking</h5>
 
-                    <!-- Price -->
                     <div class="mb-3">
                         @if (package.HasActiveDiscount())
                         {

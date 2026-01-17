@@ -14,11 +14,9 @@
 
 <body class="bg-light">
 
-    <!-- Admin Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm admin-navbar">
         <div class="container-fluid">
 
-            <!-- Admin Logo -->
             <a class="navbar-brand fw-bold"
                asp-controller="Admin"
                asp-action="Index">
@@ -27,7 +25,6 @@
 
             <ul class="navbar-nav ms-auto">
 
-                <!-- ✅ Home -->
                 <li class="nav-item">
                     <a class="nav-link"
                        asp-controller="Admin"
@@ -36,7 +33,6 @@
                     </a>
                 </li>
 
-                <!-- Users -->
                 <li class="nav-item">
                     <a class="nav-link"
                        asp-controller="Admin"
@@ -45,7 +41,6 @@
                     </a>
                 </li>
 
-                <!-- Logout -->
                 <li class="nav-item">
                     <form asp-area="Identity"
                           asp-page="/Account/Logout"
@@ -60,7 +55,6 @@
         </div>
     </nav>
 
-    <!-- Admin Content -->
     <div class="container my-4">
         @RenderBody()
     </div>

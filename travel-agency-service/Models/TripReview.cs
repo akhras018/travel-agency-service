@@ -10,7 +10,7 @@ public class TripReview
     public string UserId { get; set; }
     public ApplicationUser User { get; set; }
 
-    public int Rating { get; set; } // 1–5
+    public int Rating { get; set; } 
     public string Comment { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

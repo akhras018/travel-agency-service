@@ -27,7 +27,6 @@ namespace travel_agency_service.Controllers
 
         }
 
-        // GET: TravelPackages
         public async Task<IActionResult> Index(
         string sortBy,
         string search,
@@ -37,7 +36,6 @@ namespace travel_agency_service.Controllers
             IQueryable<TravelPackage> query = _context.TravelPackages;
             await SendTripRemindersIfNeeded();
 
-            // 🔍 Search (Destination / Country)
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(p =>
@@ -45,19 +43,16 @@ namespace travel_agency_service.Controllers
                     p.Country.Contains(search));
             }
 
-            // 🏷 Filter by category
             if (category.HasValue)
             {
                 query = query.Where(p => p.PackageType == category.Value);
             }
 
-            // 👁 Filter visibility
             if (visibleOnly.HasValue)
             {
                 query = query.Where(p => p.IsVisible == visibleOnly.Value);
             }
 
-            // 🔃 Sorting
             query = sortBy switch
             {
                 "price_asc" => query.OrderBy(p => p.BasePrice),
@@ -70,7 +65,6 @@ namespace travel_agency_service.Controllers
 
             var packages = await query.ToListAsync();
 
-            // 📊 Stats
             var waitingCounts = await _context.WaitingListEntries
                 .GroupBy(w => w.TravelPackageId)
                 .Select(g => new { g.Key, Count = g.Count() })
@@ -93,13 +87,11 @@ namespace travel_agency_service.Controllers
 
 
 
-        // GET: TravelPackages/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: TravelPackages/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
 
@@ -111,11 +103,9 @@ namespace travel_agency_service.Controllers
             if (!ModelState.IsValid)
                 return View(package);
 
-            // תמונה ראשית
             if (mainImage != null)
                 package.MainImageUrl = await SaveImage(mainImage);
 
-            // גלריה
             if (galleryImages != null && galleryImages.Any())
             {
                 var paths = new List<string>();
@@ -193,7 +183,6 @@ namespace travel_agency_service.Controllers
         }
 
 
-        // GET: TravelPackages/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var package = await _context.TravelPackages.FindAsync(id);
@@ -201,7 +190,6 @@ namespace travel_agency_service.Controllers
             return View(package);
         }
 
-        // POST: TravelPackages/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
      
@@ -232,9 +220,6 @@ namespace travel_agency_service.Controllers
 
             Directory.CreateDirectory(uploadsFolder);
 
-            // ======================
-            // 🖼 תמונה ראשית
-            // ======================
             if (mainImage != null && mainImage.Length > 0)
             {
                 var fileName = Guid.NewGuid() + Path.GetExtension(mainImage.FileName);
@@ -250,14 +235,10 @@ namespace travel_agency_service.Controllers
                 package.MainImageUrl = existingPackage.MainImageUrl;
             }
 
-            // ======================
-            // 🖼 גלריה
-            // ======================
             var gallery = (existingPackage.GalleryImagesJson ?? "")
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .ToList();
 
-            // מחיקת תמונות שסומנו
             if (ImagesToDelete != null && ImagesToDelete.Any())
             {
                 gallery = gallery
@@ -265,7 +246,6 @@ namespace travel_agency_service.Controllers
                     .ToList();
             }
 
-            // הוספת תמונות חדשות
             if (galleryImages != null && galleryImages.Any())
             {
                 foreach (var img in galleryImages)
@@ -299,7 +279,6 @@ namespace travel_agency_service.Controllers
 
 
 
-        // GET: TravelPackages/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var package = await _context.TravelPackages.FindAsync(id);
@@ -307,7 +286,6 @@ namespace travel_agency_service.Controllers
             return View(package);
         }
 
-        // POST: TravelPackages/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -320,10 +298,6 @@ namespace travel_agency_service.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-
-        // -------------------------
-        // Helpers – Discounts
-        // -------------------------
 
         private void ValidateDiscountRules(TravelPackage package)
         {
@@ -383,10 +357,6 @@ namespace travel_agency_service.Controllers
             }
         }
 
-        // -------------------------
-        // Helpers – Waiting List Email + Expiration
-        // -------------------------
-
         private async Task NotifyNextUserIfRoomAvailable(int packageId)
         {
             var package = await _context.TravelPackages.FindAsync(packageId);
@@ -394,7 +364,7 @@ namespace travel_agency_service.Controllers
                 return;
 
             var now = DateTime.UtcNow;
-            var expiration = TimeSpan.FromHours(24); // 🔁 בדיקה (להחזיר ל-24 שעות)
+            var expiration = TimeSpan.FromHours(24);      
             var request = _httpContextAccessor.HttpContext?.Request;
 
             var baseUrl = $"{request.Scheme}://{request.Host}";
@@ -409,7 +379,6 @@ namespace travel_agency_service.Controllers
             if (!waitingList.Any())
                 return;
 
-            // 🔴 מחיקת משתמשים שפג להם הזמן
             var expiredUsers = waitingList
                 .Where(w =>
                     w.NotificationSentAt != null &&
@@ -461,10 +430,8 @@ Travel Agency Team
             await _context.SaveChangesAsync();
         }
 
-        // GET: TravelPackages/WaitingList/5
         public async Task<IActionResult> WaitingList(int id)
         {
-            // 🔔 זה הטריגר שחסר – בדיקת פקיעת זמן + מעבר תור
             await NotifyNextUserIfRoomAvailable(id);
 
             var package = await _context.TravelPackages

@@ -25,7 +25,6 @@ namespace travel_agency_service.Services
 
                 await reminderService.SendUpcomingTripRemindersAsync();
 
-                // 🕐 run once every 24 hours
                 await Task.Delay(
                     TimeSpan.FromDays(1),
                     stoppingToken);

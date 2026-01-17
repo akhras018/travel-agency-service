@@ -4,10 +4,8 @@
 
 namespace travel_agency_service.Migrations
 {
-    /// <inheritdoc />
     public partial class AddUserIdToSiteReviews : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
@@ -31,7 +29,6 @@ namespace travel_agency_service.Migrations
                 onDelete: ReferentialAction.Cascade);
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(

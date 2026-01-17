@@ -5,7 +5,7 @@ namespace travel_agency_service.Models.ViewModels
     public class CartItemViewModel
     {
         public int PackageId { get; set; }
-        public int Id { get; set; }            // ✅ זה החסר
+        public int Id { get; set; }            
 
         public string Destination { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;

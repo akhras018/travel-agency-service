@@ -40,7 +40,7 @@ namespace travel_agency_service.Services
                 ),
                 Subject = subject,
                 Body = htmlMessage,
-                IsBodyHtml = true // ⭐ חד-משמעי
+                IsBodyHtml = true   
             };
 
             mailMessage.To.Add(email);

@@ -13,7 +13,6 @@
         <a asp-action="Create" class="btn btn-primary">➕ Add Package</a>
     </div>
 
-    <!-- Filters (unchanged) -->
     <form method="get" class="row g-2 mb-4">
         <div class="col-md-3">
             <input type="text"
@@ -64,7 +63,6 @@
         </div>
     </form>
 
-    <!-- Cards: IMAGE + TITLE ONLY -->
     <div class="row">
         @foreach (var p in Model)
         {
@@ -73,7 +71,6 @@
                    asp-route-id="@p.Id"
                    class="text-decoration-none text-dark">
 
-                    <!-- 🔹 שינוי יחיד כאן -->
                     <div class="card admin-package-card h-100 shadow-sm @(p.IsVisible ? "" : "opacity-75")">
                         <span class="admin-status @(p.IsVisible ? "visible" : "hidden")">
                             @(p.IsVisible ? "Visible" : "Hidden")

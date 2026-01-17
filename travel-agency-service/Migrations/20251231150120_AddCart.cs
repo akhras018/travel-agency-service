@@ -4,10 +4,8 @@
 
 namespace travel_agency_service.Migrations
 {
-    /// <inheritdoc />
     public partial class AddCart : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
@@ -32,7 +30,6 @@ namespace travel_agency_service.Migrations
                 onDelete: ReferentialAction.Cascade);
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(

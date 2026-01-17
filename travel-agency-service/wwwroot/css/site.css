@@ -1060,7 +1060,6 @@ html, body {
     position: relative;
 }
 
-/* מיקום הכרטיס על התמונה */
 .login-card-wrapper {
     position: absolute;
     top: 50%;

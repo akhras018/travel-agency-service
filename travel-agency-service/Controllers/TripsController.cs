@@ -197,9 +197,6 @@ namespace travel_agency_service.Controllers
             return View(model);
         }
 
-        // =========================
-        // POST: Join Waiting List
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> JoinWaitingList(int packageId)
@@ -252,8 +249,6 @@ namespace travel_agency_service.Controllers
             return RedirectToAction(nameof(Gallery));
         }
 
-        // =========================
-        // POST: Book
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Book(int packageId, int rooms, bool payNow , string roomTypesJson)
@@ -266,14 +261,12 @@ namespace travel_agency_service.Controllers
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            // ❌ הטיול כבר התחיל או עבר
             if (package.StartDate <= DateTime.UtcNow)
             {
                 TempData["Message"] = "הטיול כבר התחיל ולא ניתן לבצע הזמנה.";
                 return RedirectToAction(nameof(Details), new { id = packageId });
             }
 
-            // ❌ כבר הזמין את הטיול הזה
             var alreadyBooked = await _context.Bookings
           .Include(b => b.TravelPackage)
           .AnyAsync(b =>
@@ -295,7 +288,6 @@ namespace travel_agency_service.Controllers
                 return RedirectToAction(nameof(Details), new { id = package.Id });
             }
 
-            // ❌ יותר מ־3 הזמנות עתידיות
             var activeBookingsCount = await _context.Bookings
                 .Include(b => b.TravelPackage)
                 .CountAsync(b =>
@@ -308,20 +300,16 @@ namespace travel_agency_service.Controllers
                 return RedirectToAction(nameof(Details), new { id = packageId });
             }
 
-            // ❌ אין מספיק חדרים
             if (rooms <= 0 || package.AvailableRooms < rooms)
             {
                 TempData["Message"] = "אין מספיק חדרים פנויים.";
                 return RedirectToAction(nameof(Details), new { id = packageId });
             }
 
-            // ✅ הורדת חדרים
             package.AvailableRooms -= rooms;
             _context.TravelPackages.Update(package);
 
 
-            // יצירת ההזמנה
-            // יצירת ההזמנה
             var booking = new Booking
             {
                 TravelPackageId = packageId,
@@ -333,7 +321,6 @@ namespace travel_agency_service.Controllers
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            // 🔀 ניתוב לפי הכפתור
             if (payNow)
             {
                 return RedirectToAction(nameof(Pay), new { bookingId = booking.Id });
@@ -361,37 +348,29 @@ namespace travel_agency_service.Controllers
 
 
 
-        // =========================
-        // GET: Trips/MyBookings
-        // =========================
         public async Task<IActionResult> MyBookings()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var now = DateTime.UtcNow;
 
-            // כל ההזמנות של המשתמש
             var bookings = await _context.Bookings
                 .Include(b => b.TravelPackage)
                 .Where(b => b.UserId == userId)
                 .OrderBy(b => b.TravelPackage.StartDate)
                 .ToListAsync();
 
-            // 🔹 טיולים עתידיים / פעילים
             var upcomingBookings = bookings
                 .Where(b => b.TravelPackage.EndDate >= now)
                 .ToList();
 
-            // 🔹 טיולים שכבר הסתיימו
             var pastBookings = bookings
                 .Where(b => b.TravelPackage.EndDate < now)
                 .ToList();
 
-            // Reviews של האתר (צד ימין)
             ViewBag.SiteReviews = await _context.SiteReviews
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
 
-            // העברה ל־View
             ViewBag.UpcomingBookings = upcomingBookings;
             ViewBag.PastBookings = pastBookings;
 
@@ -399,9 +378,6 @@ namespace travel_agency_service.Controllers
         }
 
 
-        // =========================
-        // POST: Cancel Booking
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
 
@@ -416,7 +392,6 @@ namespace travel_agency_service.Controllers
             if (booking == null)
                 return NotFound();
 
-            // ⛔ בדיקת מועד אחרון לביטול
             if (booking.TravelPackage.CancellationDeadline.HasValue &&
                 DateTime.UtcNow > booking.TravelPackage.CancellationDeadline.Value)
             {
@@ -426,7 +401,6 @@ namespace travel_agency_service.Controllers
 
 
 
-            // ✅ החזרת חדרים לפי כמות
             booking.TravelPackage.AvailableRooms += booking.Rooms;
 
             _context.TravelPackages.Update(booking.TravelPackage);
@@ -440,9 +414,6 @@ namespace travel_agency_service.Controllers
         }
 
 
-        // =========================
-        // GET: Trips/Pay
-        // =========================
         [HttpGet]
         public async Task<IActionResult> Pay(int bookingId)
         {
@@ -463,15 +434,13 @@ namespace travel_agency_service.Controllers
 
             var totalPrice = booking.TravelPackage.GetCurrentPrice() * booking.Rooms;
 
-            // 🔐 Stripe secret key
             StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
 
-            // 🔹 יצירת PaymentIntent אמיתי
             var paymentIntentService = new PaymentIntentService();
             var paymentIntent = await paymentIntentService.CreateAsync(
                 new PaymentIntentCreateOptions
                 {
-                    Amount = (long)(totalPrice * 100), // Stripe עובד בסנטים
+                    Amount = (long)(totalPrice * 100),    
                     Currency = "ils",
                     AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                     {
@@ -490,7 +459,7 @@ namespace travel_agency_service.Controllers
                 BookingId = booking.Id,
                 TotalPrice = totalPrice,
                 PublishableKey = _configuration["Stripe:PublishableKey"],
-                ClientSecret = paymentIntent.ClientSecret!,   // ⭐⭐ זה החלק החסר
+                ClientSecret = paymentIntent.ClientSecret!,       
 
                 ReturnUrl = Url.Action(
     "PaymentSuccess",
@@ -510,9 +479,6 @@ namespace travel_agency_service.Controllers
         [HttpGet]
 
 
-        // =========================
-        // POST: Trips/ConfirmPayment
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPayment(
@@ -534,7 +500,6 @@ namespace travel_agency_service.Controllers
             if (booking == null)
                 return NotFound();
 
-            // ❌ בדיקה: שדות ריקים
             if (string.IsNullOrWhiteSpace(cardHolderName) ||
                 string.IsNullOrWhiteSpace(cardNumber) ||
                 string.IsNullOrWhiteSpace(cvv))
@@ -543,21 +508,18 @@ namespace travel_agency_service.Controllers
                 return RedirectToAction(nameof(Pay), new { bookingId });
             }
 
-            // ❌ מספר כרטיס לא תקין
             if (cardNumber.Length != 16 || !cardNumber.All(char.IsDigit))
             {
                 TempData["Error"] = "Invalid card number.";
                 return RedirectToAction(nameof(Pay), new { bookingId });
             }
 
-            // ❌ CVV לא תקין
             if (cvv.Length != 3 || !cvv.All(char.IsDigit))
             {
                 TempData["Error"] = "Invalid CVV code.";
                 return RedirectToAction(nameof(Pay), new { bookingId });
             }
 
-            // ❌ כרטיס שפג תוקף
             var expirationDate = new DateTime(expYear, expMonth, 1).AddMonths(1).AddDays(-1);
             if (expirationDate < DateTime.Today)
             {
@@ -565,9 +527,8 @@ namespace travel_agency_service.Controllers
                 return RedirectToAction(nameof(Pay), new { bookingId });
             }
 
-            // ❌ כישלון אקראי (סימולציית בנק)
             var random = new Random();
-            if (random.Next(1, 5) == 1) // ~25% כישלון
+            if (random.Next(1, 5) == 1)   
             {
                 TempData["Error"] = "Payment was declined by the bank.";
                 return RedirectToAction(nameof(Pay), new { bookingId });
@@ -575,7 +536,6 @@ namespace travel_agency_service.Controllers
             var totalPrice =
     booking.TravelPackage.GetCurrentPrice() * booking.Rooms;
 
-            // ✅ הצלחה
             booking.IsPaid = true;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
@@ -712,7 +672,6 @@ namespace travel_agency_service.Controllers
 
             TempData["Message"] = "Payment completed successfully.";
 
-            // 🔁 חזרה לגלריה
             return RedirectToAction("Gallery", "Trips");
 
 
@@ -831,9 +790,6 @@ namespace travel_agency_service.Controllers
 
 
 
-        // =========================
-        // GET: Trips/Search
-        // =========================
         [AllowAnonymous]
 
         public async Task<IActionResult> Search(
@@ -897,7 +853,6 @@ namespace travel_agency_service.Controllers
                         : p.BasePrice) <= maxPrice.Value);
             }
 
-            // מיון
             if (sortBy == "popular")
             {
                 query =
@@ -974,7 +929,6 @@ namespace travel_agency_service.Controllers
 
 
 
-            // בשביל למלא חזרה את הטופס
             ViewBag.SortBy = sortBy;
             ViewBag.Category = category;
             ViewBag.Destination = destination;
@@ -1019,7 +973,6 @@ namespace travel_agency_service.Controllers
             bool canReview = User.Identity!.IsAuthenticated;
 
 
-            // ❗ בדיקה: האם המשתמש כבר הזמין את הטיול
             var alreadyBooked = await _context.Bookings
           .Include(b => b.TravelPackage)
           .AnyAsync(b =>
@@ -1034,8 +987,6 @@ namespace travel_agency_service.Controllers
             int waitingCountWithoutUser = waitingList
              .Count(w => w.UserId != userId);
 
-            // ⏱️ הערכת זמן – דוגמה פשוטה:
-            // נניח שכל ביטול / שחרור חדר = 2 ימים
             DateTime? estimatedDate = null;
             if (userEntry != null)
             {
@@ -1087,7 +1038,7 @@ namespace travel_agency_service.Controllers
                 .FirstOrDefault(b => b.Id == bookingId && b.UserId == userId);
 
             if (booking == null)
-                return Unauthorized(); // 🔒 מונע גישה לזרים
+                return Unauthorized();     
 
             var pdf = new BookingItineraryPdf(booking).GeneratePdf();
 
@@ -1149,12 +1100,9 @@ namespace travel_agency_service.Controllers
         User.FindFirstValue(ClaimTypes.Name) ??
         userEmail?.Split('@')[0];
 
-            // הגנה: רק משתמש עם הזמנה
             var user = await _userManager.FindByIdAsync(userId);
 
 
-
-            // אופציונלי: רק Review אחד למשתמש
 
 
             var review = new SiteReview
@@ -1165,7 +1113,7 @@ namespace travel_agency_service.Controllers
 
                 Comment = Comment,
 
-                UserEmail = userEmail!,   // ⭐ זה החלק החסר
+                UserEmail = userEmail!,       
 
                 CreatedAt = DateTime.UtcNow
             };
@@ -1195,7 +1143,6 @@ namespace travel_agency_service.Controllers
             if (booking == null)
                 return NotFound();
 
-            // 🔁 מחזירים חדרים
             booking.TravelPackage.AvailableRooms += booking.Rooms;
 
             _context.TravelPackages.Update(booking.TravelPackage);

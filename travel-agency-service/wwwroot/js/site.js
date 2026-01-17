@@ -17,12 +17,10 @@ function initCarousel(wrapperId, leftArrowSelector, rightArrowSelector) {
         rightArrow.style.display = scrollLeft >= maxScroll - 5 ? "none" : "flex";
     }
 
-    // ❮ שמאלה = זז שמאלה
     leftArrow.addEventListener("click", () => {
         wrapper.scrollBy({ left: -scrollAmount, behavior: "smooth" });
     });
 
-    // ❯ ימינה = זז ימינה
     rightArrow.addEventListener("click", () => {
         wrapper.scrollBy({ left: scrollAmount, behavior: "smooth" });
     });
@@ -34,8 +32,8 @@ function initCarousel(wrapperId, leftArrowSelector, rightArrowSelector) {
 document.addEventListener("DOMContentLoaded", () => {
     initCarousel(
         "dealsWrapper",
-        ".deals-arrow.left",   // ❮
-        ".deals-arrow.right"   // ❯
+        ".deals-arrow.left",      
+        ".deals-arrow.right"      
     );
 
     initCarousel(
@@ -115,7 +113,6 @@ function closeImageModal() {
     document.getElementById("imageModal").style.display = "none";
 }
 
-// סגירה עם ESC
 document.addEventListener("keydown", e => {
     if (e.key === "Escape") closeImageModal();
 });

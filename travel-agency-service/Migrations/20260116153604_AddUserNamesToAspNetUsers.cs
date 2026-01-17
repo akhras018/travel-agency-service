@@ -4,10 +4,8 @@
 
 namespace travel_agency_service.Migrations
 {
-    /// <inheritdoc />
     public partial class AddUserNamesToAspNetUsers : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
@@ -27,7 +25,6 @@ namespace travel_agency_service.Migrations
                 defaultValue: "");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(

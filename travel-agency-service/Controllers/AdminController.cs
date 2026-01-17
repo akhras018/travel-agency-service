@@ -11,7 +11,6 @@ public class AdminController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ApplicationDbContext _context;
 
-    // ✅ הוספה בלבד – Constructor
     public AdminController(
         UserManager<ApplicationUser> userManager,
         ApplicationDbContext context)
@@ -20,28 +19,24 @@ public class AdminController : Controller
         _context = context;
     }
 
-    // ====== קיים ======
     public IActionResult Index()
     {
         return RedirectToAction("Index", "TravelPackages");
     }
 
 
-    // ====== קיים ======
     public IActionResult Packages()
     {
         return RedirectToAction("Index", "TravelPackages");
     }
 
 
-    // ====== קיים (תוכן עודכן – חתימה לא שונתה) ======
     public IActionResult Users()
     {
         var users = _userManager.Users.ToList();
         return View(users);
     }
 
-    // ====== חדש – היסטוריית הזמנות למשתמש ======
     public IActionResult UserBookings(string id)
     {
         var bookings = _context.Bookings
@@ -52,7 +47,6 @@ public class AdminController : Controller
         return View(bookings);
     }
 
-    // ====== חדש – חסימה / שחרור משתמש ======
     public async Task<IActionResult> ToggleLock(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
@@ -61,12 +55,10 @@ public class AdminController : Controller
 
         if (user.LockoutEnd != null && user.LockoutEnd > DateTime.UtcNow)
         {
-            // Unlock
             user.LockoutEnd = null;
         }
         else
         {
-            // Lock
             user.LockoutEnd = DateTime.UtcNow.AddYears(100);
         }
 

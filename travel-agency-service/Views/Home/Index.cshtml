@@ -41,7 +41,6 @@
             {
                 @if (User.Identity != null && User.Identity.IsAuthenticated)
                 {
-                    <!-- 👤 USER MENU -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle"
                            href="#"
@@ -79,7 +78,6 @@
                     </li>
                 }
 
-                <!-- 👤 USER -->
                 if (!User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
@@ -95,7 +93,6 @@
                     </li>
                 }
 
-                <!-- 🛠 ADMIN -->
                 if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">

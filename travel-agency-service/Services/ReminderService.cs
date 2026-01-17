@@ -7,17 +7,16 @@ namespace travel_agency_service.Services
     public class ReminderService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IEmailSender _emailSender; // ✅ ממשק
+        private readonly IEmailSender _emailSender;   
 
         public ReminderService(
             ApplicationDbContext context,
-            IEmailSender emailSender) // ✅ ממשק
+            IEmailSender emailSender)   
         {
             _context = context;
             _emailSender = emailSender;
         }
 
-        // 🔔 Send reminders 5 days before trip
         public async Task SendUpcomingTripRemindersAsync()
         {
             Console.WriteLine("🔔 ReminderService RUNNING");

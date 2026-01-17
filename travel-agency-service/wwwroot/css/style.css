@@ -108,7 +108,7 @@
 }
 
 .site-logo img {
-    height: 120px;          /* גובה מושלם ל-navbar */
+    height: 120px;              
     width: auto;
     display: block;
 }
@@ -120,9 +120,9 @@
 .about-container.vertical {
     max-width: 900px;
     margin: 0 auto;
-    text-align: center; /* מרכז את הטקסט */
+    text-align: center;     
     display: flex;
-    flex-direction: column; /* ⬅️ זה העיקר */
+    flex-direction: column;     
 }
 
     .about-container.vertical h2 {
@@ -135,7 +135,7 @@
         font-size: 18px;
         line-height: 1.9;
         color: #444;
-        margin-bottom: 24px; /* רווח בין פסקאות */
+        margin-bottom: 24px;     
     }
 .hero-stats {
     display: flex;

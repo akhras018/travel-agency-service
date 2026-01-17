@@ -2,9 +2,9 @@
 {
     public enum RoomType
     {
-        Standard,   // רגיל
-        Deluxe,     // משודרג
-        Suite       // סוויטה
+        Standard,    
+        Deluxe,      
+        Suite        
     }
 
 }

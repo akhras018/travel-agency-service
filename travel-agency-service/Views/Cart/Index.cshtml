@@ -23,14 +23,12 @@
                 {
                     <div class="row align-items-center border-bottom py-3">
 
-                        <!-- Image -->
                         <div class="col-md-2">
                             <img src="@item.ImageUrl"
                                  class="img-fluid rounded"
                                  style="height:80px;object-fit:cover;" />
                         </div>
 
-                        <!-- Info -->
                         <div class="col-md-4">
                             <h6 class="mb-1 fw-bold">
                                 @item.Destination, @item.Country
@@ -42,8 +40,6 @@
                             </small>
                         </div>
 
-                        <!-- Rooms -->
-                       
                         <div class="col-md-2 text-center">
                             <strong>@item.Rooms</strong> rooms
 
@@ -58,13 +54,11 @@
                             }
                         </div>
 
-                        <!-- Price -->
                         <div class="col-md-2 text-center">
                             <div>@item.UnitPrice₪</div>
                             <strong>@item.TotalPrice₪</strong>
                         </div>
 
-                        <!-- Remove -->
                         <div class="col-md-2 text-end">
                             <form asp-action="Remove" method="post">
                                 @Html.AntiForgeryToken()

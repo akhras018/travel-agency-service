@@ -21,21 +21,18 @@
                             <div asp-validation-summary="ModelOnly"
                                  class="alert alert-danger py-2"
                                  role="alert"></div>
-                            <!-- First Name -->
                             <div class="mb-3">
                                 <label asp-for="Input.FirstName" class="form-label fw-semibold"></label>
                                 <input asp-for="Input.FirstName" class="form-control" />
                                 <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
                             </div>
 
-                            <!-- Last Name -->
                             <div class="mb-3">
                                 <label asp-for="Input.LastName" class="form-label fw-semibold"></label>
                                 <input asp-for="Input.LastName" class="form-control" />
                                 <span asp-validation-for="Input.LastName" class="text-danger small"></span>
                             </div>
 
-                            <!-- Email -->
                             <div class="mb-3">
                                 <label asp-for="Input.Email" class="form-label fw-semibold"></label>
                                 <input asp-for="Input.Email"
@@ -46,7 +43,6 @@
                                       class="text-danger small"></span>
                             </div>
 
-                            <!-- Password -->
                             <div class="mb-3">
                                 <label asp-for="Input.Password" class="form-label fw-semibold"></label>
                                 <input asp-for="Input.Password"
@@ -57,7 +53,6 @@
                                       class="text-danger small"></span>
                             </div>
 
-                            <!-- Confirm Password -->
                             <div class="mb-4">
                                 <label asp-for="Input.ConfirmPassword"
                                        class="form-label fw-semibold"></label>

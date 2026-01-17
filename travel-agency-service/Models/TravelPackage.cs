@@ -18,11 +18,9 @@ namespace travel_agency_service.Models
         [DataType(DataType.Date)]
         public DateTime EndDate { get; set; }
 
-        // 💰 Base price (regular price)
         [Range(0, 100000)]
         public decimal BasePrice { get; set; }
 
-        // 🔻 Discount (optional, max 7 days)
         [Range(0, 100000)]
         public decimal? DiscountPrice { get; set; }
 
@@ -41,14 +39,10 @@ namespace travel_agency_service.Models
         [Required]  
         public string Description { get; set; } = "";
 
-        // שמירת כל התמונות כמחרוזת (URL בכל שורה)
-        // 🖼 תמונה ראשית (Hero / Thumbnail)
-        // 📸 תמונה ראשית
-        public string MainImageUrl { get; set; } = "";   // תמונה ראשית
+        public string MainImageUrl { get; set; } = "";     
         public string GalleryImagesJson { get; set; } = "[]";
 
 
-        // 🧠 Business logic – active discount check
         public bool HasActiveDiscount()
         {
             var now = DateTime.UtcNow;
@@ -59,14 +53,11 @@ namespace travel_agency_service.Models
                 && now <= DiscountEnd.Value;
         }
 
-        // 🧮 Current price calculation
         public decimal GetCurrentPrice()
         {
             return HasActiveDiscount() ? DiscountPrice!.Value : BasePrice;
         }
-        // 👁 Visibility in catalog (Admin controlled)
         public bool IsVisible { get; set; } = true;
-        // ⏳ Admin rules – booking & cancellation
         [DataType(DataType.Date)]
         public DateTime? LastBookingDate { get; set; }
 
@@ -78,7 +69,6 @@ namespace travel_agency_service.Models
 
         [Url]
         public string? HotelWebsite { get; set; }
-        // 💰 Room type price additions
         public decimal StandardRoomExtra { get; set; } = 0;
         public decimal DeluxeRoomExtra { get; set; } = 300;
         public decimal SuiteRoomExtra { get; set; } = 700;

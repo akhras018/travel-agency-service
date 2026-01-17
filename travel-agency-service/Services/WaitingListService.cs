@@ -24,7 +24,7 @@ namespace travel_agency_service.Services
                 return;
 
             var now = DateTime.UtcNow;
-            var expiration = TimeSpan.FromHours(24); // או דקה לבדיקה
+            var expiration = TimeSpan.FromHours(24);    
 
             var waitingList = await _context.WaitingListEntries
                 .Include(w => w.User)
@@ -35,7 +35,6 @@ namespace travel_agency_service.Services
             if (!waitingList.Any())
                 return;
 
-            // מחיקת משתמשים שפג להם הזמן
             var expired = waitingList
                 .Where(w =>
                     w.NotificationSentAt != null &&

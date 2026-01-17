@@ -13,13 +13,11 @@ namespace travel_agency_service.Data
             var userManager =
                 serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            // 1️⃣ יצירת Role Admin
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
                 await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
 
-            // 2️⃣ שני משתמשי Admin בלבד
             var admins = new[]
             {
                 new { Email = "admin1@travel.com", Password = "Admin123!" },
